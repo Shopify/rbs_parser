@@ -1,0 +1,17 @@
+*.o
+*.swn
+*.swo
+*.swp
+out/
+rbs2rbi
+src/Lexer.cc
+src/Parser.cc
+src/Parser.hh
+src/Parser.output
+src/location.hh
+src/position.hh
+src/stack.hh
+test/sorbet/stdlib
+test_lexer
+test_parser
+tmp/
