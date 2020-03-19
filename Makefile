@@ -2,6 +2,9 @@ CXX = g++
 BSN = bison
 RGL = ragel
 
+rbs2rbi: src/Lexer.o src/Parser.o src/main.o
+	$(CXX) $^ -o $@
+
 %.o: %.cc
 	$(CXX) -std=c++17 -c -o $@ $<
 
