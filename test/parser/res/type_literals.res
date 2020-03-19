@@ -1,0 +1,16 @@
+1:1-1:18: type: Foo = :symbol
+2:1-2:19: type: Foo = "string"
+3:1-3:13: type: Foo = 42
+4:1-4:14: type: Foo = any
+5:1-5:15: type: Foo = bool
+6:1-6:17: type: Foo = bottom
+7:1-7:16: type: Foo = class
+8:1-8:16: type: Foo = false
+9:1-9:19: type: Foo = instance
+10:1-10:14: type: Foo = nil
+11:1-11:15: type: Foo = self
+12:1-12:16: type: Foo = self?
+13:1-13:14: type: Foo = top
+14:1-14:15: type: Foo = true
+15:1-15:18: type: Foo = untyped
+16:1-16:15: type: Foo = void

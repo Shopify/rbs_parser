@@ -1,0 +1,4 @@
+type FOO = foo
+type Foo::Bar = ::bar
+type ::FOO::BAR = Foo::bar
+type ::Foo = ::Foo::bar

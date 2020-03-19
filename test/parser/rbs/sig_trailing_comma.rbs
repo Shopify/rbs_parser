@@ -1,0 +1,9 @@
+class A
+    def foo: () -> void
+    def foo: (,) -> void
+    def methodC: (A a) -> void
+    def methodC: (a: A) -> void
+    def methodC: (A a,) -> void
+ def methodC: (a: A,) -> void
+#  def methodC: (A) -> void
+end

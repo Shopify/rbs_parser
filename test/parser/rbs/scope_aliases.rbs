@@ -1,0 +1,23 @@
+class Foo
+  alias foo bar
+  alias self.foo self.bar
+  alias + bar
+  alias `foo` bar
+end
+
+module Foo
+  alias foo bar
+  alias bar +
+  alias foo `bar`
+end
+
+interface _Foo
+  alias foo bar
+  alias + -
+  alias `foo` `bar`
+end
+
+extension Foo(bar)
+  alias foo bar
+  alias self.foo self.bar
+end

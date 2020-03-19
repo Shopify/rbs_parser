@@ -1,0 +1,39 @@
+class Foo
+  include Foo
+  extend Bar
+  prepend Baz
+  private
+  def foo: (A a, B b) -> void
+  public
+  alias bar foo
+end
+
+module Foo
+  include Foo
+  extend Bar
+  prepend Baz
+  private
+  def foo: (A a, B b) -> void
+  public
+  alias bar foo
+end
+
+interface _Foo
+  include Foo
+  extend Bar
+  prepend Baz
+  private
+  def foo: (A a, B b) -> void
+  public
+  alias bar foo
+end
+
+extension Foo(bar)
+  include Foo
+  extend Bar
+  prepend Baz
+  private
+  def foo: (A a, B b) -> void
+  public
+  alias bar foo
+end

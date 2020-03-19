@@ -1,0 +1,10 @@
+class Foo
+    def foo: (a: A) -> void
+    def foo: (a: A, b: B) -> void
+    def foo: (a: A) -> void
+    def foo: (a: A, ?b: B) -> void
+    def foo: (?a: A, b: B) -> void
+    def foo: (?a: A, ?b: B) -> void
+    def foo: (?a: A?, b: B?) -> void
+    def foo: (a: A, **B b) -> void
+end

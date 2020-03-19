@@ -1,0 +1,8 @@
+type Foo = (Integer | String)
+type Foo = (Integer | String | Object | Numeric)
+type Foo = (Integer | ::Foo)
+type Foo = (Integer | ::Foo::Bar | Baz)
+type Foo = A | B
+type Foo = ((A | B) | C)
+type Foo = (A | (B | C) | D)
+type Foo = (A | (B | C))

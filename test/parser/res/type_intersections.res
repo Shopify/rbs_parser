@@ -1,0 +1,8 @@
+1:1-1:29: type: Foo = (Integer & String)
+2:1-2:48: type: Foo = (Integer & String & Object & Numeric)
+3:1-3:28: type: Foo = (Integer & ::Foo)
+4:1-4:39: type: Foo = (Integer & ::Foo::Bar & Baz)
+5:1-5:16: type: Foo = (A & B)
+6:1-6:24: type: Foo = (A & B & C)
+7:1-7:28: type: Foo = (A & (B & C) & D)
+8:1-8:24: type: Foo = (A & (B & C))

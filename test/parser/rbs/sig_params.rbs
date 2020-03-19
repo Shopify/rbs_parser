@@ -1,0 +1,31 @@
+class Foo
+  def methodA:
+  def methodB: -> void
+  def methodC: (?A) -> void
+  def methodD: (A _) -> void
+  def methodE: (?int?) -> void
+  def methodF: (A a) -> void
+  def methodG: (::A, ::B) -> void
+  def methodH: (::A, ?::B) -> void
+  def methodI: (A a, B b) -> void
+  def methodJ: (?A?) -> void
+  def methodK: (?A a) -> void
+  def methodL: (A a, ?B b) -> void
+  def methodM: (*A) -> void
+  def methodN: (*A a) -> void
+  def methodO: (A, *B) -> void
+  def methodP: (A a, *B b) -> void
+  def methodQ: (a: A) -> void
+  def methodR: (a: A, b: B) -> void
+  def methodS: (a: A, ?b: B) -> void
+  def methodT: (?a: A, b: B) -> void
+  def methodU: (?a: A, ?b: B) -> void
+  def methodZ: (?a: A?, b: B?) -> void
+  def methodW: (a: A, **B b) -> void
+  def methodX: (A, B b, *B, c: C, **A) -> void
+  def methodY: -> void | (A, ::B) ->::B
+  def methodZ: -> void | (?A a) -> void | (A, ::B) -> ::B
+end
+
+module A end
+module B end

@@ -1,0 +1,4 @@
+type FOO = singleton(Foo)
+type Foo::Bar = singleton(::Foo)
+type ::FOO::BAR = singleton(Foo::Bar)
+type ::Foo = singleton(::Foo::Bar)

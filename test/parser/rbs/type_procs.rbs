@@ -1,0 +1,5 @@
+type Foo = ^() -> void
+type Foo = ^(A) -> Foo
+type Foo = ^(A, B) -> ::Foo
+type Foo = ^(A a) -> ::Foo::Bar
+type Foo = ^(A, B a) -> void

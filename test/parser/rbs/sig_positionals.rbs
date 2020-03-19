@@ -1,0 +1,17 @@
+class Foo
+  def foo: (A) -> void
+  def foo: (A a) -> void
+  def foo: (A, B) ->void
+  def foo: (A a, B b) ->void
+  def foo: (?A) -> void
+  def foo: (?A?) -> void
+  def foo: (?int?) -> void
+  def foo: (?A a) -> void
+  def foo: (A, ?B) ->void
+  def foo: (A a, ?B b) ->void
+  def foo: (*A) -> void
+  def foo: (*A a) -> void
+  def foo: (A, *B) ->void
+  def foo: (A a, *B b) ->void
+  def foo: (A _) -> untyped
+end

@@ -1,0 +1,4 @@
+FOO: Foo
+::FOO: Foo
+Foo::FOO: ::Foo
+::Foo::Bar::FOO: Foo::Bar

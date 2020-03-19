@@ -1,0 +1,11 @@
+class Foo
+  def foo: (A, B) -> C
+         | () -> void
+
+  def bar:
+    (A, B) -> C |
+    (C) -> D |
+    () -> void
+
+  def baz: (A, B) -> C | (C) -> D
+end

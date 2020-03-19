@@ -1,0 +1,25 @@
+class Foo
+  include Bar
+  extend Bar
+  prepend Bar
+  prepend ::Bar
+end
+
+module Foo
+  include ::Bar
+  extend ::Bar
+  prepend ::Bar
+end
+
+interface _Foo
+  include ::Bar::baz
+  extend ::Bar::baz
+  prepend ::Bar::baz
+  prepend Bar::baz
+end
+
+extension Foo(bar)
+  include Bar::baz
+  extend Bar::Baz
+  prepend Bar::baz
+end

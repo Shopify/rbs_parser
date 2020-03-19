@@ -1,0 +1,21 @@
+class Foo
+  def foo: -> F
+  def foo: -> Foo
+  def foo: -> Foo?
+  def foo: -> foo
+  def foo: -> Foo::Foo
+  def foo: -> ::Foo::Foo
+  def foo: -> void
+  def foo: -> untyped
+  def foo: -> bool
+  def foo: -> bool?
+  def foo: -> true
+  def foo: -> false
+  def foo: -> 10
+  def foo: -> "test"
+  def foo: -> (A | B)
+  def foo: -> [ ]
+  def foo: -> [A, B]
+  def foo: -> Enum[A, B]
+  def foo: -> Enum[A, B]?
+end

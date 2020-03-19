@@ -1,0 +1,7 @@
+type Foo = [A]
+type Foo = [A, B]
+type Foo = [A, B, C]
+type Foo = [A, ::Foo::Bar]
+type Foo = [[B, C], D]
+type Foo = [A, [C, D], E]
+type Foo = [A, [C, D]]

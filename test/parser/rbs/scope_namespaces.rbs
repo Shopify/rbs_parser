@@ -1,0 +1,14 @@
+class ::Foo
+end
+
+module ::Foo::Bar
+end
+
+interface Foo::_Bar
+end
+
+extension Foo::Bar::Baz(bar)
+end
+
+class BAR::Foo
+end

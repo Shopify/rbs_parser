@@ -1,0 +1,25 @@
+class Foo[Elem]
+end
+
+module Foo[A, B]
+end
+
+interface _Foo[out A]
+end
+
+extension Foo[out A, B](bar)
+end
+
+class Foo[unchecked out A, B]
+end
+
+module Foo[in A] end
+
+class Foo[in A, B]
+end
+
+interface _Foo[unchecked in A, B]
+end
+
+class Foo[unchecked in A, unchecked out B]
+end

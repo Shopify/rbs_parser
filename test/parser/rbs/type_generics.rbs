@@ -1,0 +1,11 @@
+type Foo = Foo[A]
+type Foo = Foo[A?]
+type Foo = ::Foo[A, B]
+type Foo = ::Foo[A | B]
+type Foo = ::Foo[A & B]
+type Foo = ::Foo::Bar[A, B, C]
+type Foo = Foo[A, ::Foo::Bar]
+type Foo = Foo[A[B, C], D]
+type Foo = Foo[A, B[C, D], E]
+type Foo = Foo[A, B[C, D]]
+type Foo = Foo[A, B[C, D]]?

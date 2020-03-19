@@ -1,0 +1,14 @@
+class Foo
+    def foo:
+    def foo: -> void
+    def foo: (Bar) -> void
+    def foo: (Bar bar) -> void
+    def foo: (Bar, ::Baz::Baz) -> void
+    def boo: (Bar bar, ::Baz::Baz baz) -> void
+    def foo: -> Foo
+    def foo: (Bar) -> ::Foo
+    def foo: (Bar bar) -> ::Foo::Bar
+    def foo: (Bar, ::Baz::Baz) -> Foo::Bar
+    def foo: -> void | (Bar, ::Baz::Baz) -> Foo::Bar
+    def foo: -> void | (Bar bar) -> void | (Bar, ::Baz::Baz) -> Foo::Bar
+end

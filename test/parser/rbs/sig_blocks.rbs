@@ -1,0 +1,8 @@
+class Foo
+  def foo: () { () -> void } -> void
+  def foo: () ?{ () -> ::Foo } -> void
+  def foo: () { (A, B) -> Foo } -> void
+  def foo: () ?{ (A a, B b) -> void } -> void
+  def foo: () { -> A? } -> Elem?
+  def foo: () { (Elem a, Elem b) -> Integer? } -> Elem?
+end

@@ -1,0 +1,4 @@
+class Foo
+    def foo: () -> void
+    def `foo`: () -> void
+end

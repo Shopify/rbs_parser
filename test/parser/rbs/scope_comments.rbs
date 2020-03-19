@@ -1,0 +1,31 @@
+# Comment
+# Before
+class Foo # Comment
+# Comment
+# Inside
+end # Comment
+# Comment after
+
+# Comment
+# Before
+module Foo # Comment
+# Comment
+# Inside
+end # Comment
+# Comment after
+
+# Comment
+# Before
+interface _Foo # Comment
+# Comment
+# Inside
+end # Comment
+# Comment after
+
+# Comment
+# Before
+extension Foo (bar) # Comment
+# Comment
+# Inside
+end # Comment
+# Comment after

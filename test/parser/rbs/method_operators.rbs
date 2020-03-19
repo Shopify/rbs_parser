@@ -1,0 +1,23 @@
+class Foo
+  def ===: () -> bool
+  def ==: () -> bool
+  def =~: () -> bool
+  def !~: () -> bool
+  def !=: () -> bool
+  def >=: () -> bool
+  def <<: () -> bool
+  def <=>: () -> bool
+  def <=: () -> bool
+  def >>: () -> bool
+  def >: () -> bool
+  def ~: () -> bool
+  def +@: () -> bool
+  def +: () -> bool
+  def []=: () -> bool
+  def []: () -> bool
+  def -@: () -> bool
+  def -: () -> bool
+  def /: () -> bool
+  def `: () -> bool
+  def %: () -> bool
+end

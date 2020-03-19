@@ -1,0 +1,29 @@
+class Foo
+  attr_reader foo1: Foo
+  attr_reader foo2 (): Foo
+  attr_reader foo3 (@ivar): Foo
+  attr_writer foo4: Foo
+  attr_writer foo5 (): Foo
+  attr_writer foo6 (@ivar): Foo
+  attr_accessor foo7: Foo
+  attr_accessor foo8 (): Foo
+  attr_accessor foo9 (@ivar): Foo
+end
+
+module Foo
+  attr_reader foo: Foo
+  attr_writer bar: Foo
+  attr_accessor baz: Foo
+end
+
+interface _Foo
+  attr_reader foo: Foo
+  attr_writer bar: Foo
+  attr_accessor baz: Foo
+end
+
+extension Foo(bar)
+  attr_reader foo: Foo
+  attr_writer bar: Foo
+  attr_accessor baz: Foo
+end
