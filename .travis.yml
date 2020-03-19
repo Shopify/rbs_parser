@@ -1,0 +1,24 @@
+language: cpp
+
+os: linux
+dist: xenial
+
+compiler:
+  -clang
+  -gcc
+
+addons:
+  apt:
+    update: true
+    packages:
+      - ragel
+
+before_install:
+  - wget http://archive.ubuntu.com/ubuntu/pool/main/b/bison/bison_3.4.1+dfsg-4_amd64.deb
+  - sudo apt install -y ./bison_3.4.1+dfsg-4_amd64.deb
+  - cd test/sorbet/
+  - bundle install
+  - cd ../../
+
+script:
+  - make -skB check
