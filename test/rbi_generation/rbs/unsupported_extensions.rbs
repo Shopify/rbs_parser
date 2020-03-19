@@ -1,0 +1,7 @@
+extension Foo(doo) end
+
+extension Foo::Bar(bar)
+end
+
+extension ::Baz(bar)
+end

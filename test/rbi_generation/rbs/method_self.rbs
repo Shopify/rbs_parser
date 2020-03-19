@@ -1,0 +1,5 @@
+class Foo
+  def foo: -> void
+  def self.foo: -> void
+  def self?.bar: -> void
+end

@@ -1,0 +1,7 @@
+class A end
+class A::B end
+
+
+T1: singleton(A)
+T2: singleton(::A)
+T3: singleton(A::B)

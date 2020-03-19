@@ -1,0 +1,4 @@
+1:5-1:12: Warning: Unsupported `instance`
+2:5-2:9: Warning: Unsupported `self?`
+3:5-3:7: Warning: Unsupported `bot`
+4:5-4:7: Warning: Unsupported `top`

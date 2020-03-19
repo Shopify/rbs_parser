@@ -1,0 +1,13 @@
+class Foo
+  def a: -> void
+  def b: -> Foo
+  def c: -> ::Foo::Bar
+  def d: -> Foo?
+  def e: -> untyped
+  def f: -> (A | B)
+  def g: -> [A, B]
+end
+
+module Foo::Bar end
+module A end
+module B end

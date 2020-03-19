@@ -1,0 +1,18 @@
+module A end
+module B end
+module C end
+module D end
+module E end
+
+class Foo[U] end
+class Bar[U, V] end
+
+T1: Foo[Integer]
+T2: Foo[String?]
+T3: ::Bar[Integer, String]
+T4: ::Foo[Integer | String]
+T5: ::Foo[Integer & String]
+T6: Bar[Bar[Integer, String], Object]
+T7: Foo[Integer, Bar[String, Object], D]
+T8: Foo[Integer, Bar[Object, BasicObject]?]
+T9: Foo[Integer, Bar[Object, BasicObject]]?

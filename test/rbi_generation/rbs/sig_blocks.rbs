@@ -1,0 +1,8 @@
+class Foo
+  def foo1: () { () -> void } -> void
+  def foo2: () ?{ () -> ::Foo } -> void
+  def foo3: () { (String, Integer) -> Foo } -> void
+  def foo4: () ?{ (String a, Integer b) -> void } -> void
+  def foo5: () { -> String? } -> Foo?
+  def foo6: () { (Foo a, Foo b) -> Foo? } -> Integer?
+end

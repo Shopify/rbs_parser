@@ -1,0 +1,5 @@
+T1: Integer?
+T2: ::Integer?
+T3: (Integer & String)?
+T4: (Integer? | String? | Object?)?
+T5: [Integer?, String?]?

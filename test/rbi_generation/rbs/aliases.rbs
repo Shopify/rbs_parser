@@ -1,0 +1,6 @@
+module Foo end
+module Foo::Bar end
+
+type FOO = Integer
+type Foo::Baz = Foo
+type ::Bar = ::Foo::Bar

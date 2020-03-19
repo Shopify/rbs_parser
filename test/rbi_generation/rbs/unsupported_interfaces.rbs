@@ -1,0 +1,7 @@
+interface _Foo end
+
+interface ::_Bar
+end
+
+interface Bar::_Baz
+end

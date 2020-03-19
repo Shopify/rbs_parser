@@ -31,3 +31,8 @@ test_parser: src/Lexer.o src/Parser.o test/test_parser.o
 check_parser: test_parser
 	echo "Test Parser"
 	./test/test.sh ./test_parser test/parser/rbs test/parser/res
+
+.PHONY:
+check_rbi: rbs2rbi
+	echo "Test RBI generation"
+	./test/test.sh ./rbs2rbi test/rbi_generation/rbs test/rbi_generation/res

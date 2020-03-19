@@ -1,0 +1,16 @@
+module A end
+module B end
+module C end
+module D end
+
+class Foo
+  def foo: (A, B) -> C
+         | () -> void
+
+  def bar:
+    (A, B) -> C |
+    (C) -> D |
+    () -> void
+
+  def baz: (A, B) -> C | (C) -> D
+end

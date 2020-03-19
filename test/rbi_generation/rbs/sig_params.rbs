@@ -1,0 +1,25 @@
+class Foo
+  def methodA:
+  def methodB: -> void
+  def methodC: (?Integer) -> void
+  def methodD: (Integer _) -> void
+  def methodE: (?int?) -> void
+  def methodF: (Integer a) -> void
+  def methodG: (::Integer, ::String) -> void
+  def methodH: (::Integer, ?::String) -> void
+  def methodI: (Integer a, String b) -> void
+  def methodJ: (?String?) -> void
+  def methodK: (?String a) -> void
+  def methodL: (Integer a, ?String b) -> void
+  def methodM: (*String) -> void
+  def methodN: (*String a) -> void
+  def methodO: (String, *Integer) -> void
+  def methodP: (Integer a, *String b) -> void
+  def methodQ: (a: String) -> void
+  def methodR: (a: Integer, b: String) -> void
+  def methodS: (a: Integer, ?b: String) -> void
+  def methodT: (?a: Integer, b: String) -> void
+  def methodU: (?a: Integer, ?b: String) -> void
+  def methodZ: (?a: Integer?, b: String?) -> void
+  def methodW: (a: Integer, **String b) -> void
+end

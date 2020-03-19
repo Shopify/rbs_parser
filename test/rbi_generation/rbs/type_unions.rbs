@@ -1,0 +1,11 @@
+module A end
+module B end
+module C end
+module D end
+
+T1: (A | B)
+T2: (A | B | C | D)
+T3: A | B
+T4: ((A | B) | C)
+T5: (A | (B | C) | D)
+T6: (A | (B | C))

@@ -1,0 +1,10 @@
+T0: :symbol
+T1: "string"
+T2: 42
+T3: any
+T4: bool | true | false
+T5: class
+T6: nil
+T7: self
+T8: untyped
+T9: void

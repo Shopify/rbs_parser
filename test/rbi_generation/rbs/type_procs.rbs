@@ -1,0 +1,8 @@
+module A end
+module B end
+module C end
+
+T1: ^() -> void
+T2: ^(A) -> C
+T3: ^(A, B) -> ::C
+T4: ^(A, B b) -> void

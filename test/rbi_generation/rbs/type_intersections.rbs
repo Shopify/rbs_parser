@@ -1,0 +1,10 @@
+module A end
+module B end
+module C end
+module D end
+
+T1: A & B
+T2: ((A & B & C))
+T3: ((A & B) & C)
+T4: (A & (B & C) & D)
+T5: (A & (B & C))

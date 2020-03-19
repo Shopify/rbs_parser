@@ -1,0 +1,28 @@
+class Foo
+  def foo: -> void
+  def foo=: -> void
+  def foo?: -> void
+  def foo!: -> void
+  def `bar`: -> void
+  def ===: -> void
+  def ==: -> void
+  def =~: -> void
+  def !~: -> void
+  def !=: -> void
+  def >=: -> void
+  def <<: -> void
+  def <=>: -> void
+  def <=: -> void
+  def >>: -> void
+  def >: -> void
+  def ~: -> void
+  def +@: -> void
+  def +: -> void
+  def []=: -> void
+  def []: -> void
+  def -@: -> void
+  def -: -> void
+  def /: -> void
+  def `: -> void
+  def %: -> void
+end

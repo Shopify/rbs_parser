@@ -1,0 +1,11 @@
+module Foo
+  def foo: (Integer a, String b) -> void
+  alias bar foo
+end
+
+class Bar
+  include Foo
+  attr_accessor foo (): Foo
+  attr_writer foo: Foo
+  attr_reader foo (): Foo
+end

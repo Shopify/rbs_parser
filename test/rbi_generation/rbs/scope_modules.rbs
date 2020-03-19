@@ -1,0 +1,7 @@
+module Foo end
+
+module ::Bar
+end
+
+module Bar::Baz
+end
