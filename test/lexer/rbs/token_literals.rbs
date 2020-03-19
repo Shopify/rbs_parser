@@ -1,0 +1,7 @@
+"a string"
+"a string \" with un escaped dquote"
+'another string'
++42
+-42
+42
+100_000_000
