@@ -52,3 +52,14 @@ check_stdlib: rbs2rbi
 .PHONY:
 check_format:
 	./tools/format_cxx.sh
+
+.PHONY:
+check: check_lexer check_parser check_rbi check_rbi_with_sorbet check_stdlib check_format
+
+.PHONY:
+clean:
+	rm -rf src/Lexer.o src/Lexer.cc \
+		  src/Parser.o src/Parser.hh src/Parser.cc src/location.hh \
+		  src/Main.o rbs2rbi \
+		  test/test_lexer.o test_lexer test/test_parser.o test_parser out \
+		  out/ tmp/ test/sorbet/stdlib
