@@ -48,3 +48,7 @@ clone_stdlib:
 .PHONY:
 check_stdlib: rbs2rbi
 	cd test && ./test_stdlib.sh stdlib
+
+.PHONY:
+check_format:
+	./tools/format_cxx.sh
