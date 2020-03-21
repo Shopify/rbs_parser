@@ -1,0 +1,4 @@
+class Foo
+  def foo: [X] (X) -> X
+  def bar: [X, Y] ([X], Y)  -> [X, Y]
+end

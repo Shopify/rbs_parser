@@ -208,8 +208,6 @@ class Foo
 end
 ```
 
-TODO nilable in nilable
-
 [[rbi:method_params]]
 
 The method type can be connected with `|`s to define an overloaded method.
@@ -321,7 +319,10 @@ TODO This has no equivalent in RBI.
 | optional                              |  V  |  V  |
 | record                                |  V  |  V  |
 | tuple                                 |  V  |  V  |
-| generics                              |  V  |  ~  |
+| type parameters                       |  V  |  V  |
+| type parameters variance              |  V  |  V  |
+| type parameters unchecked             |  V  |  X  |
+| method type parameters                |  V  |  V  |
 | proc                                  |  V  |  V  |
 | base types                            |  V  |  V  |
 
@@ -469,11 +470,9 @@ class Ref[T]              # Object is scoped in the class declaration.
 end
 ```
 
-// TODO implement type parameters
-
 [[rbi:generics]]
 
-// TODO modifiers
+TODO modifiers
 
 ### Proc type
 

@@ -595,7 +595,7 @@ class Ref
 
   T = type_member()
 
-  sig { params(_blk: T.proc.params(arg0: T).returns(X)).returns(Ref[X]) }
+  sig { type_parameters(:X).params(_blk: T.proc.params(arg0: T).returns(T.type_parameter(:X))).returns(Ref[T.type_parameter(:X)]) }
   def map(_blk); end
 end
 ```

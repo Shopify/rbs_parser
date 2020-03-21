@@ -302,7 +302,9 @@ public:
 
     virtual void visit(MethodType *type) {
         printLoc(type);
-        printn("method_type");
+        print("method_type");
+        printTypeParams(type->typeParams);
+        printn();
         indent();
         enterVisit(type->sig);
         if (type->block) {

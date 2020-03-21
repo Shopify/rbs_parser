@@ -413,20 +413,28 @@
         sig->params.emplace_back(static_cast<Param*>(node));
       }
       sig->ret = static_cast<Type*>($5.node);
-      if ($3.node) {
-        $$.node = new MethodType(driver.loc(@1, @5), sig, static_cast<Block*>($3.node));
-      } else {
-        $$.node = new MethodType(driver.loc(@1, @5), sig);
+
+      MethodType* type = new MethodType(driver.loc(@1, @5), sig);
+      for (auto &node : $1.list->nodes) {
+        type->typeParams.emplace_back(static_cast<TypeParam*>(node));
       }
+      if ($3.node) {
+        type->block = static_cast<Block*>($3.node);
+      }
+      $$.node = type;
     }
 
   type_params
     : %empty
+    { $$.list = driver.list(); }
     | kLBRACKET type_params0 kRBRACKET
+    { $$.list = $2.list; }
 
   type_params0
     : tUIDENT
+    { $$.list = driver.list(new TypeParam(driver.loc(@1, @1), $1.string, NULL, false)); }
     | type_params0 kCOMMA tUIDENT
+    { $$.list = driver.merge($1.list, new TypeParam(driver.loc(@3, @3), $3.string, NULL, false)); }
 
   params_opt
     : %empty

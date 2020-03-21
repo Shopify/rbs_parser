@@ -566,10 +566,10 @@ public:
 
 class MethodType : public Node {
 public:
+    std::vector<TypeParam *> typeParams;
     TypeProc *sig;
     Block *block;
 
-    MethodType(Loc loc, TypeProc *sig, Block *block) : Node(loc), sig(sig), block(block) {}
     MethodType(Loc loc, TypeProc *sig) : Node(loc), sig(sig), block(NULL) {}
     // virtual ~MethodType() { delete sig; delete block; }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }

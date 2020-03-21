@@ -10,6 +10,8 @@ namespace rbs_parser {
 
 class PrintRBI : public PrintVisitor {
 public:
+    std::set<std::string> typeNames;
+
     PrintRBI(std::ostream &output) : PrintVisitor(output){};
 
     virtual void visit(File *file) {
@@ -121,7 +123,16 @@ public:
         print(")");
     }
 
-    virtual void visit(TypeSimple *type) { printTypeName(*type->name); }
+    virtual void visit(TypeSimple *type) {
+        bool isTypeParam = typeNames.find(*type->name) != typeNames.end();
+        if (isTypeParam) {
+            print("T.type_parameter(:");
+        }
+        printTypeName(*type->name);
+        if (isTypeParam) {
+            print(")");
+        }
+    }
 
     virtual void visit(TypeSingleton *type) {
         print("T.class_of(");
@@ -391,37 +402,50 @@ public:
         }
     }
 
-    void printSig(TypeProc *sig, Block *block) {
+    virtual void visit(MethodType *type) {
         printt();
         print("sig { ");
-        if (!sig->params.empty() || block != NULL) {
-            print("params(");
-            for (int i = 0; i < sig->params.size(); i++) {
-                printParam(sig->params[i], i);
-                if (i < sig->params.size() - 1) {
+        if (!type->typeParams.empty()) {
+            print("type_parameters(");
+            for (int i = 0; i < type->typeParams.size(); i++) {
+                typeNames.insert(*type->typeParams[i]->name);
+                print(":" + *type->typeParams[i]->name);
+                if (i < type->typeParams.size() - 1) {
                     print(", ");
                 }
             }
-            if (block) {
-                if (!sig->params.empty()) {
+            print(")");
+        }
+        if (!type->sig->params.empty() || type->block != NULL) {
+            if (!type->typeParams.empty()) {
+                print(".");
+            }
+            print("params(");
+            for (int i = 0; i < type->sig->params.size(); i++) {
+                printParam(type->sig->params[i], i);
+                if (i < type->sig->params.size() - 1) {
+                    print(", ");
+                }
+            }
+            if (type->block) {
+                if (!type->sig->params.empty()) {
                     print(", ");
                 }
                 print("_blk: ");
-                enterVisit(block);
+                enterVisit(type->block);
             }
             print(").");
         }
-        if (TypeVoid *type_void = dynamic_cast<TypeVoid *>(sig->ret)) {
+        if (TypeVoid *type_void = dynamic_cast<TypeVoid *>(type->sig->ret)) {
             enterVisit(type_void);
         } else {
             print("returns(");
-            enterVisit(sig->ret);
+            enterVisit(type->sig->ret);
             print(")");
         }
         printn(" }");
+        typeNames.clear();
     }
-
-    virtual void visit(MethodType *node) { printSig(node->sig, node->block); }
 
     virtual void visit(Block *block) {
         if (block->optional) {
