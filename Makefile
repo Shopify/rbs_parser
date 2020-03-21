@@ -57,6 +57,10 @@ check_format:
 check: check_lexer check_parser check_rbi check_rbi_with_sorbet check_stdlib check_format
 
 .PHONY:
+gen_specs: rbs2rbi specs/README.src
+	specs/build.sh ./rbs2rbi specs/README.src > specs/README.md
+
+.PHONY:
 clean:
 	rm -rf src/Lexer.o src/Lexer.cc \
 		  src/Parser.o src/Parser.hh src/Parser.cc src/location.hh \

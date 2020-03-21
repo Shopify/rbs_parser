@@ -1,0 +1,503 @@
+# RBS & RBI comparison
+
+
+## Declarations
+
+| Construct                             | RBS | RBI |
+| ------------------------------------- | --- | --- |
+| class                                 |  V  |  V  |
+| class parent                          |  V  |  V  |
+| module                                |  V  |  V  |
+| module self type                      |  V  |  X  |
+| interface                             |  V  |  X  |
+| extension                             |  V  |  X  |
+| type_alias                            |  V  |  V  |
+| constant                              |  V  |  V  |
+| global                                |  V  |  X  |
+
+TODO check how to deal with alias names
+
+### Class declaration
+
+A class is declared thanks to the `class` keyword in both RBS and RBI.
+
+```rbs:class
+class Student
+end
+```
+
+[[rbi:class]]
+
+Class declaration can have a superclass. When you omit superclass, `::Object` is assumed.
+
+```rbs:class_parent
+class Student < Person
+end
+```
+
+[[rbi:class_parent]]
+
+### Module declaration
+
+```rbs:module
+module Enumerable
+end
+```
+
+[[rbi:module]]
+
+Module declaration takes optional self type parameter, which defines a constraint about a class when the module is mixed.
+
+```
+interface _Each[A, B]
+  def each: { (A) -> void } -> B
+end
+
+module Enumerable[A, B] : _Each[A, B]
+  def count: () -> Integer
+end
+```
+
+The Enumerable method above requires each method for enumerating objects.
+
+TODO This has no equivalent in RBI.
+
+### Interface declaration
+
+Interface declaration can have parameters but allows only a few of the members.
+
+```
+interface _Hashing
+  def hash: () -> Integer
+  def eql?: (any) -> bool
+end
+```
+
+There are several limitations which are not described in the grammar.
+
+1. Interface cannot include modules
+2. Interface cannot have singleton method definitions
+
+```
+interface _Foo
+  include Bar                  # Error: cannot include modules
+  def self.new: () -> Foo      # Error: cannot include singleton method definitions
+end
+```
+
+TODO This has no equivalent in RBI.
+
+### Extension declaration
+
+Extension is to model open class.
+
+```
+extension Kernel (Pathname)
+  def Pathname: (String) -> Pathname
+end
+
+extension Array[A] (ActiveSupport)
+  def to: (Integer) -> Array[A]
+  def from: (Integer) -> Array[A]
+  def second: () -> A?
+  def third: () -> A?
+end
+```
+
+TODO This has no equivalent in RBI.
+
+### Type alias declaration
+
+You can declare an alias of types.
+
+```rbs:type_alias
+type subject = Attendee | Speaker
+type JSON::t = Integer | TrueClass | FalseClass | String | Hash[Symbol, t] | Array[t]
+```
+
+[[rbi:type_alias]]
+
+TODO Check names with Sorbet
+
+### Constant type declaration
+
+You can declare a constant.
+
+```rbs:constant
+Person::DefaultEmailAddress: String
+```
+
+[[rbi:constant]]
+
+### Global type declaration
+
+You can declare a global variable.
+
+```
+$LOAD_PATH: Array[String]
+```
+
+TODO This has no equivalent in RBI.
+
+## Members
+
+| Construct                             | RBS | RBI |
+| ------------------------------------- | --- | --- |
+| ivar                                  |  V  |  X  |
+| method                                |  V  |  V  |
+| method multiple signatures            |  V  |  ~  |
+| method self                           |  V  |  V  |
+| method self?                          |  V  |  ~  |
+| method super                          |  V  |  X  |
+| attr reader                           |  V  |  V  |
+| attr writer                           |  V  |  V  |
+| attr accessor                         |  V  |  V  |
+| attr instance variable                |  V  |  X  |
+| mixin                                 |  V  |  V  |
+| mixin interface                       |  V  |  X  |
+| alias                                 |  V  |  ~  |
+| visibility                            |  V  |  X  |
+
+### Ivar definition
+
+An instance variable definition consists of the name of an instance variable and its type.
+
+```
+class Student
+  @name: String
+  @year: Integer
+end
+```
+
+TODO This has no equivalent in RBI.
+
+### Method definition
+
+Method definition has several syntax variations.
+
+You can write `self.` or `self?.` before the name of the method to specify the kind of method: instance, singleton, or both instance and singleton.
+
+```rbs:method
+class Foo
+  def to_s: () -> String                        # Defines a instance method
+  def self.new: () -> AnObject                  # Defines singleton method
+  def self?.sqrt: (Numeric) -> Numeric          # self? is for `module_function`
+end
+```
+
+[[rbi:method]]
+
+A parameter can be a type or a pair of type and variable name. Variable name can be used for documentation.
+
+```rbs:method_params
+class Foo
+  # Two required positional `Integer` parameters, and returns `String`
+  def f1: (Integer, Integer) -> String
+
+  # Two optional parameters `size` and `name`.
+  # `name` is a optional parameter with optional type so that developer can omit, pass a string, or pass `nil`.
+  def f2: (?Integer size, ?String? name) -> String
+
+  # Method type with a rest parameter
+  def f3: (Integer, *Integer) -> void
+
+  # `size` is a required keyword, with variable name of `sz`.
+  # `name` is a optional keyword.
+  # `created_at` is a optional keyword, and the value can be `nil`.
+  def f4: (size: Integer sz, ?name: String, ?created_at: Time?) -> void
+end
+```
+
+TODO nilable in nilable
+
+[[rbi:method_params]]
+
+The method type can be connected with `|`s to define an overloaded method.
+
+```rbs:methods
+class Foo
+  def +: (Float) -> Float
+       | (Integer) -> Integer
+       | (Numeric) -> Numeric
+end
+```
+
+[[rbi:methods]]
+
+You need extra parentheses on return type to avoid ambiguity.
+
+```rbs:method_returns
+class Foo
+  def +: (Float | Integer) -> (Float | Integer)
+       | (Numeric) -> Numeric
+end
+```
+
+[[rbi:method_returns]]
+
+Method types can end with super which means the methods from existing definitions. This is useful to define an extension, which adds a new variation to the existing method preserving the original behavior.
+
+TODO This has no equivalent in RBI.
+
+### Attribute definition
+
+Attribute definitions help to define methods and instance variables based on the convention of `attr_reader`, `attr_writer` and `attr_accessor` methods in Ruby.
+
+```rbs:attr
+class Student
+  attr_reader name: String
+  attr_writer age: Integer
+  attr_accessor last_login: Date
+end
+```
+
+[[rbi:attr]]
+
+You can specify the name of instance variable using (`@some_name`) syntax and also omit the instance variable definition by specifying `()`.
+
+```
+class Student
+  attr_writer name (@raw_name) : String
+  attr_accessor friends (): Array[Person]
+end
+```
+
+### Mixin (`include`), Mixin (`extend`), Mixin (`prepend`)
+
+You can define mixins between class and modules.
+
+```rbs:mixin
+class Foo
+  include Kernel
+  include Enumerable[String, void]
+  extend ActiveSupport::Concern
+end
+```
+
+[[rbi::mixin]]
+
+You can also include or extend an interface.
+
+```
+include _Hashing
+extend _LikeString
+This allows importing defs from the interface to help developer implementing a set of methods.
+```
+
+TODO This has no equivalent in RBI.
+
+### Alias
+
+You can define an alias between methods.
+
+```rbs:alias
+class Student
+  def name: -> String
+  alias first_name name      # `#first_name` has the same type with `name`
+end
+```
+
+[[rbi:alias]]
+
+### `public`, `private`
+
+`public` and `private` allows specifying the visibility of methods.
+
+These work only as statements, not per-method specifier.
+
+TODO This has no equivalent in RBI.
+
+## Types
+
+| Construct                             | RBS | RBI |
+| ------------------------------------- | --- | --- |
+| class instance                        |  V  |  V  |
+| class singleton                       |  V  |  V  |
+| interface                             |  V  |  X  |
+| alias                                 |  V  |  ~  |
+| literal                               |  V  |  ~  |
+| union                                 |  V  |  V  |
+| intersection                          |  V  |  V  |
+| optional                              |  V  |  V  |
+| record                                |  V  |  V  |
+| tuple                                 |  V  |  V  |
+| generics                              |  V  |  ~  |
+| proc                                  |  V  |  V  |
+| base types                            |  V  |  V  |
+
+TODO aliases names
+
+### Class instance type
+
+Class instance type denotes an instance of a class.
+
+```rbs:type_instance
+T1: Integer
+T2: ::Integer
+T3: Hash[Symbol, String]
+```
+
+[[rbi:type_instance]]
+
+### Class singleton type
+
+Class singleton type denotes the type of a singleton object of a class.
+
+```rbs:type_singleton
+T1: singleton(String)
+T2: singleton(::Hash)      # Class singleton type cannot be parametrized.
+```
+
+[[rbi:type_singleton]]
+
+### Interface type
+
+Interface type denotes type of a value which can be a subtype of the interface.
+
+```
+_ToS                          # _ToS interface
+::MyApp::_Each[String]        # Interface name with namespace and type application
+```
+
+TODO This has no equivalent in RBI.
+TODO use a module?
+
+### Alias type
+
+Alias type denotes an alias declared with alias declaration.
+
+The name of type aliases starts with lowercase [a-z].
+
+```
+name
+::JSON::t                    # Alias name with namespace
+```
+
+TODO This has no equivalent in RBI.
+TODO aliases names with upercase?
+
+### Literal type
+
+Literal type denotes a type with only one value of the literal.
+
+```rbs:type_literals
+T1: 123                         # Integer
+T2: "hello world"               # A string
+T3: :to_s                       # A symbol
+T4: true                        # true or false
+```
+
+Literals are translated to their class names in RBI:
+
+[[rbi:type_literals]]
+
+### Union type
+
+Union type denotes a type of one of the given types.
+
+```rbs:type_unions
+T1: Integer | String           # Integer or String
+T2: Array[Integer | String]    # Array of Integer or String
+```
+
+[[rbi:type_unions]]
+
+### Intersection type
+
+Intersection type denotes a type of all of the given types.
+
+```rbs:type_inters
+T1: Integer & String           # Integer and String
+```
+
+Note that & has higher precedence than | that Integer & String | Symbol is (Integer & String) | Symbol.
+
+[[rbi:type_inters]]
+
+### Optional type
+
+Optional type denotes a type of value or nil.
+
+```rbs:type_optionals
+T1: Integer?
+T2: Array[Integer?]
+```
+
+[[rbi:type_optionals]]
+
+### Record type
+
+Records are Hash objects, fixed set of keys, and heterogeneous.
+
+```rbs:records
+T1: { id: Integer, name: String }     # Hash object like `{ id: 31, name: String }`
+```
+
+[[rbi:records]]
+
+### Tuple type
+
+Tuples are Array objects, fixed size and heterogeneous.
+
+```rbs:type_tuples
+T1: [ ]                               # Empty like `[]`
+T2: [String]                          # Single string like `["hi"]`
+T3: [Integer, Integer]                # Pair of integers like `[1, 2]`
+T4: [Symbol, Integer, Integer]        # Tuple of Symbol, Integer, and Integer like `[:pair, 30, 22]`
+```
+
+[[rbi:type_tuples]]
+
+Empty tuple or 1-tuple sound strange, but RBS allows these types.
+
+### Type variable
+
+```rbs:type_var
+T1: U
+T2: T
+T3: S
+T4: Elem
+```
+
+[[rbi:type_var]]
+
+Type variables cannot be distinguished from class instance types. They are scoped in class/module/interface declaration or generic method types.
+
+```rbs:generics
+class Ref[T]              # Object is scoped in the class declaration.
+  def map: [X] { (T) -> X } -> Ref[X]   # X is a type variable scoped in the method type.
+end
+```
+
+// TODO implement type parameters
+
+[[rbi:generics]]
+
+// TODO modifiers
+
+### Proc type
+
+Proc type denots type of procedures, Proc instances.
+
+```rbs:type_procs
+T1: ^(Integer) -> String                  # A procedure with an `Integer` parameter and returns `String`
+T2: ^(?String, size: Integer) -> bool     # A procedure with `String` optional parameter, `size` keyword of `Integer`, and returns `bool`
+```
+
+[[rbi:type_procs]]
+
+### Base types
+
+```rbs:type_base
+T1: self		# denotes the type of receiver. The type is used to model the open recursion via self.
+T2: instance	# denotes the type of instance of the class.
+T3: class		# denotes the type of the singleton of the `self` class.
+T4: bool		# denotes an abstract type for truth value.
+T5: untyped		# is for a type without type checking.
+T6: nil			# is for nil.
+T7: top			# is a supertype of all of the types.
+T8: bot			# is a subtype of all of the types.
+T9: void		# is a supertype of all of the types.
+```
+
+[[rbi:type_base]]
