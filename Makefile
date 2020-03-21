@@ -36,3 +36,7 @@ check_parser: test_parser
 check_rbi: rbs2rbi
 	echo "Test RBI generation"
 	./test/test.sh ./rbs2rbi test/rbi_generation/rbs test/rbi_generation/res
+
+.PHONY:
+check_rbi_with_sorbet:
+	cd test && ./test_with_sorbet.sh
