@@ -34,6 +34,9 @@ class TypeUnion;
 class TypeUntyped;
 class TypeVoid;
 
+class Record;
+class RecordField;
+
 class Decl;
 class Scope;
 class Class;
@@ -61,6 +64,7 @@ class Block;
 class Param;
 
 class TypeParam;
+
 } // namespace rbs_parser
 
 #endif

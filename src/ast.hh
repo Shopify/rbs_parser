@@ -88,6 +88,9 @@ public:
     virtual void visit(TypeUntyped *type) = 0;
     virtual void visit(TypeVoid *type) = 0;
 
+    virtual void visit(Record *type) = 0;
+    virtual void visit(RecordField *field) = 0;
+
     virtual void visit(Class *decl) = 0;
     virtual void visit(Const *decl) = 0;
     virtual void visit(Extension *decl) = 0;
@@ -311,6 +314,32 @@ class TypeVoid : public Type {
 public:
     TypeVoid(Loc loc) : Type(loc) {}
     virtual ~TypeVoid() {}
+    virtual void acceptVisitor(Visitor *v) { v->visit(this); }
+};
+
+// Records
+
+class RecordField : public Node {
+public:
+    std::string *name;
+    Type *type;
+
+    RecordField(Loc loc, std::string *name, Type *type) : Node(loc), name(name), type(type){};
+
+    virtual ~RecordField() {
+        delete name;
+        delete type;
+    }
+
+    virtual void acceptVisitor(Visitor *v) { v->visit(this); }
+};
+
+class Record : public Type {
+public:
+    std::vector<RecordField *> fields;
+
+    Record(Loc loc) : Type(loc) {}
+    virtual ~Record() {}
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 

@@ -129,6 +129,27 @@ public:
         dedent();
     }
 
+    // Records
+
+    virtual void visit(RecordField *field) {
+        printLoc(field);
+        print(*field->name);
+        print(" => ");
+        enterVisit(field->type);
+        if (!dynamic_cast<Record *>(field->type)) {
+            printn();
+        }
+    }
+
+    virtual void visit(Record *type) {
+        printn("record");
+        indent();
+        for (int i = 0; i < type->fields.size(); i++) {
+            enterVisit(type->fields[i]);
+        }
+        dedent();
+    }
+
     // Decl
 
     virtual void visit(TypeParam *param) {

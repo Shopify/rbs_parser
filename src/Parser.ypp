@@ -628,7 +628,7 @@
     { $$.node = new TypeNilable(driver.loc(@1, @2), static_cast<Type*>($1.node)); }
     | kHAT proc_type
     { $$.node = new Block(driver.loc(@1, @2), static_cast<TypeProc*>($2.node), false); }
-    // TODO record type
+    | record_type
 
   type_list
     : type
@@ -649,6 +649,32 @@
     }
     | kARROW simple_type
     { $$.node = new TypeProc(driver.loc(@1, @2), static_cast<Type*>($2.node)); }
+
+  record_type
+    : kLBRACE record_fields kRBRACE
+    {
+      Record* record = new Record(driver.loc(@1, @3));
+      for (auto &node : $2.list->nodes) {
+        record->fields.emplace_back(static_cast<RecordField*>(node));
+      }
+      $$.node = record;
+    }
+
+  record_fields
+    : record_field
+    { $$.list = driver.list($1.node); }
+    | record_field kCOMMA record_fields
+    { $$.list = driver.merge($1.node, $3.list); }
+
+  record_field
+    : tSYMBOL kFATARROW type
+    { $$.node = new RecordField(driver.loc(@1, @3), $1.string, static_cast<Type*>($3.node)); }
+    | tSTRING kFATARROW type
+    { $$.node = new RecordField(driver.loc(@1, @3), $1.string, static_cast<Type*>($3.node)); }
+    | tINTEGER kFATARROW type
+    { $$.node = new RecordField(driver.loc(@1, @3), $1.string, static_cast<Type*>($3.node)); }
+    | keyword type
+    { $$.node = new RecordField(driver.loc(@1, @2), $1.string, static_cast<Type*>($2.node)); }
 
   // Names
 
