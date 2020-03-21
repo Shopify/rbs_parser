@@ -3,6 +3,8 @@
 `rbs_parser` provides an API and a command line tool to parse [Ruby RBS signatures](https://github.com/ruby/ruby-signature)
 and translate them to [Sorbet's RBI format](https://sorbet.org/docs/rbi).
 
+See [the comparison of supported features](./specs/README.md) by both specifications and what `rbs2rbi` is able to translate.
+
 ## Compilation
 
 Compile the `rbs2rbi` translator:
@@ -19,13 +21,34 @@ Requirements:
 
 ## Usage
 
-To translate a single file:
+Given the following RBS file:
 
-```sh
-$ rbs2rbi file.rbs
+```ruby
+# calculator.rbs
+
+class Calculator
+  def sum: (Integer, Integer) -> Integer
+end
 ```
 
-RBI is output to `stdout`, parsing errors and RBI translation errors to `stderr`.
+Translate it to RBI with `rbs2rbi`:
+
+```sh
+$ rbs2rbi calculator.rbs
+```
+
+RBI is output to `stdout`, parsing errors and RBI translation errors to `stderr`:
+
+```ruby
+# typed: true
+
+class Calculator
+  extend T::Sig
+
+  sig { params(arg0: Integer, arg1: Integer).returns(Integer) }
+  def sum(arg0, arg1); end
+end
+```
 
 ## Running the tests
 
@@ -51,9 +74,9 @@ public:
         }
     }
 
-    virtual void visit(TypeBool *type) { print("T::Boolean"); }
+    virtual void visit(TypeBool *type) { print("Bool"); }
 
-    virtual void visit(TypeNil *type) { print("NilClass"); }
+    virtual void visit(TypeNil *type) { print("Nil"); }
 
 	// ...
 }
