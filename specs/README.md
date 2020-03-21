@@ -3,19 +3,22 @@
 
 ## Declarations
 
-| Construct                             | RBS | RBI |
-| ------------------------------------- | --- | --- |
-| class                                 |  V  |  V  |
-| class parent                          |  V  |  V  |
-| module                                |  V  |  V  |
-| module self type                      |  V  |  X  |
-| interface                             |  V  |  X  |
-| extension                             |  V  |  X  |
-| type_alias                            |  V  |  V  |
-| constant                              |  V  |  V  |
-| global                                |  V  |  X  |
-
-TODO check how to deal with alias names
+| Construct                             | RBS  | RBI  |
+| ------------------------------------- | ---- | ---- |
+| class                                 |  ✅  |  ✅  |
+| class parent                          |  ✅  |  ✅  |
+| class abstract                        |  ❌  |  ✅  |
+| class final                           |  ❌  |  ✅  |
+| class sealed                          |  ❌  |  ✅  |
+| module                                |  ✅  |  ✅  |
+| module final                          |  ❌  |  ✅  |
+| module self type                      |  ✅  |  ❌  |
+| interface                             |  ✅  |  🔶  |
+| extension                             |  ✅  |  ❌  |
+| struct                                |  ❌  |  ✅  |
+| type_alias                            |  ✅  |  ✅  |
+| constant                              |  ✅  |  ✅  |
+| global                                |  ✅  |  ❌  |
 
 ### Class declaration
 
@@ -158,22 +161,24 @@ TODO This has no equivalent in RBI.
 
 ## Members
 
-| Construct                             | RBS | RBI |
-| ------------------------------------- | --- | --- |
-| ivar                                  |  V  |  X  |
-| method                                |  V  |  V  |
-| method multiple signatures            |  V  |  ~  |
-| method self                           |  V  |  V  |
-| method self?                          |  V  |  ~  |
-| method super                          |  V  |  X  |
-| attr reader                           |  V  |  V  |
-| attr writer                           |  V  |  V  |
-| attr accessor                         |  V  |  V  |
-| attr instance variable                |  V  |  X  |
-| mixin                                 |  V  |  V  |
-| mixin interface                       |  V  |  X  |
-| alias                                 |  V  |  ~  |
-| visibility                            |  V  |  X  |
+| Construct                             | RBS  | RBI  |
+| ------------------------------------- | ---- | ---- |
+| ivar                                  |  ✅  |  ❌  |
+| method                                |  ✅  |  ✅  |
+| method multiple signatures            |  ✅  |  🔶  |
+| method self                           |  ✅  |  ✅  |
+| method self?                          |  ✅  |  🔶  |
+| method super                          |  ✅  |  ❌  |
+| method final                          |  ❌  |  ✅  |
+| method override                       |  ❌  |  ✅  |
+| attr reader                           |  ✅  |  ✅  |
+| attr writer                           |  ✅  |  ✅  |
+| attr accessor                         |  ✅  |  ✅  |
+| attr instance variable                |  ✅  |  ❌  |
+| mixin                                 |  ✅  |  ✅  |
+| mixin interface                       |  ✅  |  ❌  |
+| alias                                 |  ✅  |  🔶  |
+| visibility                            |  ✅  |  ❌  |
 
 ### Ivar definition
 
@@ -237,8 +242,6 @@ class Foo
   def f4: (size: Integer sz, ?name: String, ?created_at: Time?) -> void
 end
 ```
-
-TODO nilable in nilable
 
 ```rbi
 class Foo
@@ -394,22 +397,29 @@ TODO This has no equivalent in RBI.
 
 ## Types
 
-| Construct                             | RBS | RBI |
-| ------------------------------------- | --- | --- |
-| class instance                        |  V  |  V  |
-| class singleton                       |  V  |  V  |
-| interface                             |  V  |  X  |
-| alias                                 |  V  |  ~  |
-| literal                               |  V  |  ~  |
-| union                                 |  V  |  V  |
-| intersection                          |  V  |  V  |
-| optional                              |  V  |  V  |
-| record                                |  V  |  V  |
-| tuple                                 |  V  |  V  |
-| generics                              |  V  |  ~  |
-| proc                                  |  V  |  V  |
-| base types                            |  V  |  V  |
+| Construct                             | RBS  | RBI  |
+| ------------------------------------- | ---- | ---- |
+| class instance                        |  ✅  |  ✅  |
+| class singleton                       |  ✅  |  ✅  |
+| interface                             |  ✅  |  ❌  |
+| alias                                 |  ✅  |  🔶  |
+| literal                               |  ✅  |  🔶  |
+| union                                 |  ✅  |  ✅  |
+| intersection                          |  ✅  |  ✅  |
+| optional                              |  ✅  |  ✅  |
+| record                                |  ✅  |  ✅  |
+| tuple                                 |  ✅  |  ✅  |
+| enum                                  |  ❌  |  ✅  |
+| type parameters                       |  ✅  |  ✅  |
+| type parameters bound                 |  ❌  |  ✅  |
+| type parameters variance              |  ✅  |  ✅  |
+| type parameters unchecked             |  ✅  |  ❌  |
+| method type parameters                |  ✅  |  ✅  |
+| proc                                  |  ✅  |  ✅  |
+| attached class                        |  ❌  |  ✅  |
+| base types                            |  ✅  |  🔶  |
 
+TODO split literal
 TODO aliases names
 
 ### Class instance type
@@ -586,8 +596,6 @@ class Ref[T]              # Object is scoped in the class declaration.
 end
 ```
 
-// TODO implement type parameters
-
 ```rbi
 class Ref
   extend T::Sig
@@ -600,7 +608,7 @@ class Ref
 end
 ```
 
-// TODO modifiers
+TODO modifiers
 
 ### Proc type
 
