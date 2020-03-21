@@ -3,6 +3,7 @@
 
 #include "File.hh"
 #include "PrintVisitor.hh"
+#include <regex>
 #include <set>
 
 namespace rbs_parser {
@@ -29,7 +30,7 @@ public:
     }
 
     void printDefName(std::string name) {
-        if (name.length() > 1 && name.rfind("`", 0) == 0) {
+        if (name.length() > 1 && name.find("`", 0) == 0) {
             name = name.substr(1, name.length() - 2);
         }
         if (name == "undef") {
@@ -55,7 +56,7 @@ public:
             print("T::Enumerator");
         } else if (name == "Enumerable" || name == "::Enumerable") {
             print("T::Enumerable");
-            // } else if (name.length() > 1 && name.rfind("_", 0) == 0) {
+            // } else if (name.length() > 1 && name.find("_", 0) == 0) {
             // print(name.substr(1, name.length() - 1));
         } else {
             print(name);
@@ -182,6 +183,31 @@ public:
             enterVisit(type->ret);
             print(")");
         }
+    }
+
+    // Records
+    virtual void visit(RecordField *field) {
+        // TODO sanitize name
+        if (field->name->find(":", 0) == 0) {
+            print(field->name->substr(1, field->name->length() - 1));
+        } else if (std::regex_match(*field->name, std::regex("[0-9]+"))) {
+            print("\"" + *field->name + "\"");
+        } else {
+            print(*field->name);
+        }
+        print(": ");
+        enterVisit(field->type);
+    }
+
+    virtual void visit(Record *type) {
+        print("{ ");
+        for (int i = 0; i < type->fields.size(); i++) {
+            enterVisit(type->fields[i]);
+            if (i < type->fields.size() - 1) {
+                print(", ");
+            }
+        }
+        print(" }");
     }
 
     // Declarations
