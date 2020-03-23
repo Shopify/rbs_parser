@@ -129,7 +129,7 @@ extension Array[A] (ActiveSupport)
 end
 ```
 
-TODO This has no equivalent in RBI.
+**Unsupported: This has no equivalent in RBI.**
 
 ### Type alias declaration
 
@@ -165,7 +165,7 @@ You can declare a global variable.
 $LOAD_PATH: Array[String]
 ```
 
-TODO This has no equivalent in RBI.
+**Unsupported: This has no equivalent in RBI.**
 
 ## Members
 
@@ -199,7 +199,7 @@ class Student
 end
 ```
 
-TODO This has no equivalent in RBI.
+**Unsupported: This has no equivalent in RBI.**
 
 ### Method definition
 
@@ -311,7 +311,7 @@ end
 
 Method types can end with super which means the methods from existing definitions. This is useful to define an extension, which adds a new variation to the existing method preserving the original behavior.
 
-TODO This has no equivalent in RBI.
+**Unsupported: This has no equivalent in RBI.**
 
 ### Attribute definition
 
@@ -410,7 +410,7 @@ end
 
 These work only as statements, not per-method specifier.
 
-TODO This has no equivalent in RBI.
+**Unsupported: This has no equivalent in RBI.**
 
 ## Types
 
@@ -435,8 +435,6 @@ TODO This has no equivalent in RBI.
 | proc                                  |  ✅  |  ✅  |
 | attached class                        |  ❌  |  ✅  |
 | base types                            |  ✅  |  🔶  |
-
-TODO split literal
 
 ### Class instance type
 
