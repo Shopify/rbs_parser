@@ -107,6 +107,23 @@ public:
         return res;
     }
 
+    std::string sanitizeAliasName(std::string name) {
+        std::string res;
+        std::vector<std::string> names = splitNamespace(name);
+        for (int i = 0; i < names.size(); i++) {
+            if (i != 0) {
+                res += "::";
+            }
+            if (i == names.size() - 1 && std::islower(names[i][0])) {
+                res += std::toupper(names[i][0]);
+                res += names[i].substr(1, names[i].length() - 1);
+            } else {
+                res += names[i];
+            }
+        }
+        return res;
+    }
+
     // Types
 
     virtual void visit(TypeBool *type) { print("T::Boolean"); }
@@ -322,7 +339,8 @@ public:
 
     virtual void visit(TypeDecl *decl) {
         printt();
-        print(*decl->name + " = T.type_alias { ");
+        print(sanitizeAliasName(*decl->name));
+        print(" = T.type_alias { ");
         enterVisit(decl->type);
         printn(" }");
     }

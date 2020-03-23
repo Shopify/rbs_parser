@@ -141,8 +141,8 @@ type JSON::t = Integer | TrueClass | FalseClass | String | Hash[Symbol, t] | Arr
 ```
 
 ```rbi
-subject = T.type_alias { T.any(Attendee, Speaker) }
-JSON::t = T.type_alias { T.any(Integer, TrueClass, FalseClass, String, T::Hash[Symbol, t], T::Array[t]) }
+Subject = T.type_alias { T.any(Attendee, Speaker) }
+JSON::T = T.type_alias { T.any(Integer, TrueClass, FalseClass, String, T::Hash[Symbol, t], T::Array[t]) }
 ```
 
 TODO Check names with Sorbet

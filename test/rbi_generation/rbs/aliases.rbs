@@ -4,3 +4,7 @@ module Foo::Bar end
 type FOO = Integer
 type Foo::Baz = Foo
 type ::Bar = ::Foo::Bar
+
+type foo2 = Integer
+type Foo::baz2 = Foo
+type ::bar2 = ::Foo::Bar
