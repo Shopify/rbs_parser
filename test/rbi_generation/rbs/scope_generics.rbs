@@ -3,3 +3,5 @@ class Type2[A, B] end
 module Type3[A, B] end
 module Type4[in A] end
 module Type5[A, out B] end
+class Type6[in A] end
+class Type7[A, out B] end

@@ -40,3 +40,19 @@ module Type5
 
   B = type_member(:out)
 end
+
+class Type6
+  extend T::Sig
+  extend T::Generic
+
+  A = type_member(:in)
+end
+
+class Type7
+  extend T::Sig
+  extend T::Generic
+
+  A = type_member()
+
+  B = type_member(:out)
+end

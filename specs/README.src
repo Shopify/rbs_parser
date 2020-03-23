@@ -477,7 +477,26 @@ end
 
 [[rbi:generics]]
 
-TODO modifiers
+Variance can be applied to type variables:
+
+```rbs:generic_variance
+module Edge[in X, out Y]
+end
+
+class Ref[in X]
+end
+```
+
+[[rbi:generic_variance]]
+
+RBS also allows type variables to be declared as unchecked:
+
+```
+class Ref[unchecked in X]
+end
+```
+
+**Unsupported: This has no equivalent in RBI.**
 
 ### Proc type
 

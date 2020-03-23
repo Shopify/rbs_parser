@@ -628,7 +628,42 @@ class Ref
 end
 ```
 
-TODO modifiers
+Variance can be applied to type variables:
+
+```rbs:generic_variance
+module Edge[in X, out Y]
+end
+
+class Ref[in X]
+end
+```
+
+```rbi
+module Edge
+  extend T::Sig
+  extend T::Generic
+
+  X = type_member(:in)
+
+  Y = type_member(:out)
+end
+
+class Ref
+  extend T::Sig
+  extend T::Generic
+
+  X = type_member(:in)
+end
+```
+
+RBS also allows type variables to be declared as unchecked:
+
+```
+class Ref[unchecked in X]
+end
+```
+
+**Unsupported: This has no equivalent in RBI.**
 
 ### Proc type
 
