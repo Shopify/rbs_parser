@@ -332,17 +332,26 @@ public:
 
     virtual void visit(Include *include) {
         printn();
-        printl("include " + *include->name);
+        printt();
+        print("include ");
+        enterVisit(include->type);
+        printn();
     }
 
     virtual void visit(Extend *extend) {
         printn();
-        printl("extend " + *extend->name);
+        printt();
+        print("extend ");
+        enterVisit(extend->type);
+        printn();
     }
 
     virtual void visit(Prepend *prepend) {
         printn();
-        printl("prepend " + *prepend->name);
+        printt();
+        print("prepend ");
+        enterVisit(prepend->type);
+        printn();
     }
 
     virtual void visit(Visibility *decl) {

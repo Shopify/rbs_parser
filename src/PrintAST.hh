@@ -265,17 +265,23 @@ public:
 
     virtual void visit(Include *decl) {
         printLoc(decl);
-        printn("include " + *decl->name);
+        print("include ");
+        enterVisit(decl->type);
+        printn();
     }
 
     virtual void visit(Extend *decl) {
         printLoc(decl);
-        printn("extend " + *decl->name);
+        print("extend ");
+        enterVisit(decl->type);
+        printn();
     }
 
     virtual void visit(Prepend *decl) {
         printLoc(decl);
-        printn("prepend " + *decl->name);
+        print("prepend ");
+        enterVisit(decl->type);
+        printn();
     }
 
     virtual void visit(Visibility *decl) {

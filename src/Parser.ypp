@@ -340,21 +340,39 @@
 
   include_member
     : kINCLUDE qualified_name
-    { $$.node = new Include(driver.loc(@1, @2), $2.string); }
+    { $$.node = new Include(driver.loc(@1, @2), new TypeSimple(driver.loc(@2, @2), $2.string)); }
     | kINCLUDE qualified_name kLBRACKET type_list kRBRACKET
-    { $$.node = new Include(driver.loc(@1, @5), $2.string); }
+    {
+      TypeGeneric* type = new TypeGeneric(driver.loc(@2, @5), $2.string);
+      for (auto &ptype : $4.list->nodes) {
+        type->types.emplace_back(static_cast<Type*>(ptype));
+      }
+      $$.node = new Include(driver.loc(@1, @5), type);
+    }
 
   extend_member
     : kEXTEND qualified_name
-    { $$.node = new Extend(driver.loc(@1, @2), $2.string); }
+    { $$.node = new Extend(driver.loc(@1, @2), new TypeSimple(driver.loc(@2, @2), $2.string)); }
     | kEXTEND qualified_name kLBRACKET type_list kRBRACKET
-    { $$.node = new Extend(driver.loc(@1, @5), $2.string); }
+    {
+      TypeGeneric* type = new TypeGeneric(driver.loc(@2, @5), $2.string);
+      for (auto &ptype : $4.list->nodes) {
+        type->types.emplace_back(static_cast<Type*>(ptype));
+      }
+      $$.node = new Extend(driver.loc(@1, @5), type);
+    }
 
   prepend_member
     : kPREPEND qualified_name
-    { $$.node = new Prepend(driver.loc(@1, @2), $2.string); }
+    { $$.node = new Prepend(driver.loc(@1, @2), new TypeSimple(driver.loc(@2, @2), $2.string)); }
     | kPREPEND qualified_name kLBRACKET type_list kRBRACKET
-    { $$.node = new Prepend(driver.loc(@1, @5), $2.string); }
+    {
+      TypeGeneric* type = new TypeGeneric(driver.loc(@2, @5), $2.string);
+      for (auto &ptype : $4.list->nodes) {
+        type->types.emplace_back(static_cast<Type*>(ptype));
+      }
+      $$.node = new Prepend(driver.loc(@1, @5), type);
+    }
 
   // Methods
 

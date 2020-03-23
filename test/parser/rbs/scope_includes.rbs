@@ -1,18 +1,18 @@
 class Foo
   include Bar
   extend Bar
-  prepend Bar
+  prepend Bar[A]
   prepend ::Bar
 end
 
 module Foo
   include ::Bar
-  extend ::Bar
+  extend ::Bar[A, B]
   prepend ::Bar
 end
 
 interface _Foo
-  include ::Bar::baz
+  include ::Bar::baz[A, B]
   extend ::Bar::baz
   prepend ::Bar::baz
   prepend Bar::baz

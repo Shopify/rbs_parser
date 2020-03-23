@@ -515,19 +515,19 @@ public:
 
 class Include : public Member {
 public:
-    std::string *name;
+    Type *type;
 
-    Include(Loc loc, std::string *name) : Member(loc), name(name) {}
-    virtual ~Include() { delete name; }
+    Include(Loc loc, Type *type) : Member(loc), type(type) {}
+    virtual ~Include() { delete type; }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Extend : public Member {
 public:
-    std::string *name;
+    Type *type;
 
-    Extend(Loc loc, std::string *name) : Member(loc), name(name) {}
-    virtual ~Extend() { delete name; }
+    Extend(Loc loc, Type *type) : Member(loc), type(type) {}
+    virtual ~Extend() { delete type; }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -547,10 +547,10 @@ public:
 
 class Prepend : public Member {
 public:
-    std::string *name;
+    Type *type;
 
-    Prepend(Loc loc, std::string *name) : Member(loc), name(name) {}
-    virtual ~Prepend() { delete name; }
+    Prepend(Loc loc, Type *type) : Member(loc), type(type) {}
+    virtual ~Prepend() { delete type; }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
