@@ -32,42 +32,6 @@ public:
         }
     }
 
-    void printDefName(std::string name) {
-        if (name.length() > 1 && name.find("`", 0) == 0) {
-            name = name.substr(1, name.length() - 2);
-        }
-        if (name == "undef") {
-            name = "_undef";
-        }
-        print(name);
-    }
-
-    void printTypeName(std::string name) {
-        if (name == "string") {
-            print("String");
-        } else if (name == "int") {
-            print("Integer");
-        } else if (name == "Array" || name == "::Array") {
-            print("T::Array");
-        } else if (name == "Hash" || name == "::Hash") {
-            print("T::Hash");
-        } else if (name == "Set" || name == "::Set") {
-            print("T::Set");
-        } else if (name == "Range" || name == "::Range") {
-            print("T::Range");
-        } else if (name == "Enumerator" || name == "::Enumerator") {
-            print("T::Enumerator");
-        } else if (name == "Enumerable" || name == "::Enumerable") {
-            print("T::Enumerable");
-            // } else if (name.length() > 1 && name.find("_", 0) == 0) {
-            // print(name.substr(1, name.length() - 1));
-        } else {
-            name = sanitizeInterfaceName(name);
-            name = sanitizeAliasName(name);
-            print(name);
-        }
-    }
-
     void warnUnsupported(Node *node, std::string message) {
         std::cerr << node->loc.toString();
         std::cerr << ": Warning: ";
@@ -90,6 +54,30 @@ public:
         res.emplace_back(name);
 
         return res;
+    }
+
+    std::string sanitizeTypeName(std::string name) {
+        if (name == "string") {
+            return "String";
+        } else if (name == "int") {
+            return "Integer";
+        } else if (name == "Array" || name == "::Array") {
+            return "T::Array";
+        } else if (name == "Hash" || name == "::Hash") {
+            return "T::Hash";
+        } else if (name == "Set" || name == "::Set") {
+            return "T::Set";
+        } else if (name == "Range" || name == "::Range") {
+            return "T::Range";
+        } else if (name == "Enumerator" || name == "::Enumerator") {
+            return "T::Enumerator";
+        } else if (name == "Enumerable" || name == "::Enumerable") {
+            return "T::Enumerable";
+        } else {
+            name = sanitizeInterfaceName(name);
+            name = sanitizeAliasName(name);
+            return name;
+        }
     }
 
     std::string sanitizeInterfaceName(std::string name) {
@@ -123,6 +111,16 @@ public:
             }
         }
         return res;
+    }
+
+    std::string sanitizeDefName(std::string name) {
+        if (name.length() > 1 && name.find("`", 0) == 0) {
+            name = name.substr(1, name.length() - 2);
+        }
+        if (name == "undef") {
+            name = "_undef";
+        }
+        return name;
     }
 
     // Types
@@ -182,7 +180,7 @@ public:
         if (isTypeParam) {
             print("T.type_parameter(:");
         }
-        printTypeName(*type->name);
+        print(sanitizeTypeName(*type->name));
         if (isTypeParam) {
             print(")");
         }
@@ -222,7 +220,7 @@ public:
     }
 
     virtual void visit(TypeGeneric *type) {
-        printTypeName(*type->name);
+        print(sanitizeTypeName(*type->name));
         if (!inInclude) {
             print("[");
             printTypes(type->types);
@@ -352,9 +350,9 @@ public:
         printn();
         printt();
         print("alias ");
-        printDefName(*alias->from);
+        print(sanitizeDefName(*alias->from));
         print(" ");
-        printDefName(*alias->to);
+        print(sanitizeDefName(*alias->to));
         printn();
     }
 
@@ -422,14 +420,14 @@ public:
         if (decl->singleton) {
             print("self."); // TODO isBoth
         }
-        printDefName(*decl->name);
+        print(sanitizeDefName(*decl->name));
         if (!decl->types.empty()) {
             auto type = decl->types[0];
             if (!type->sig->params.empty() || type->block != NULL) {
                 print("(");
                 for (int i = 0; i < type->sig->params.size(); i++) {
                     if (type->sig->params[i]->name) {
-                        printDefName(*type->sig->params[i]->name);
+                        print(sanitizeDefName(*type->sig->params[i]->name));
                     } else {
                         print("arg" + std::to_string(i));
                     }
@@ -452,7 +450,7 @@ public:
 
     void printParam(Param *param, int count) {
         if (param->name) {
-            printDefName(*param->name);
+            print(sanitizeDefName(*param->name));
         } else {
             print("arg" + std::to_string(count));
         }
