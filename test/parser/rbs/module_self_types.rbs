@@ -1,0 +1,23 @@
+module Foo : _Bar
+end
+
+module Foo: _Bar
+end
+
+module ::Foo : ::_Bar
+end
+
+module ::Foo: ::_Bar
+end
+
+module Foo::Bar : Foo::_Baz
+end
+
+module Foo::Bar: Foo::_Baz
+end
+
+module Enumerable[A, B] : _Each[A, B]
+end
+
+module Enumerable[A, B]: _Each[A, B]
+end

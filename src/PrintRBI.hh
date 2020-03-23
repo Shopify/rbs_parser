@@ -259,7 +259,12 @@ public:
         printScope("class", *decl->name + (decl->parent ? " < " + *decl->parent : ""), decl);
     }
 
-    virtual void visit(Module *decl) { printScope("module", *decl->name, decl); }
+    virtual void visit(Module *decl) {
+        if (decl->selfType != NULL) {
+            warnUnsupported(static_cast<Node *>(decl->selfType), "Unsupported `module self type`");
+        }
+        printScope("module", *decl->name, decl);
+    }
 
     virtual void visit(Interface *decl) {
         warnUnsupported(static_cast<Node *>(decl), "Unsupported `interface`");

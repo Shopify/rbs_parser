@@ -188,12 +188,23 @@
   module_decl
     : kMODULE class_name module_type_params module_self_type class_members kEND
     {
-      // TODO module self type
-      // TODO tUKEYWORD
       Module* decl = new Module(driver.loc(@1, @6), $2.string);
       for (auto &node : $3.list->nodes) {
         decl->typeParams.emplace_back(static_cast<TypeParam*>(node));
       }
+      if ($4.node != NULL) {
+        decl->selfType = static_cast<Type*>($4.node);
+      }
+      for (auto &node : $5.list->nodes) {
+        decl->members.emplace_back(static_cast<Member*>(node));
+      }
+      driver.file->decls.push_back(decl);
+    }
+    | kMODULE namespace tUKEYWORD type class_members kEND
+    {
+      $3.string->pop_back();
+      Module* decl = new Module(driver.loc(@1, @6), new std::string(*$2.string + *$3.string));
+      decl->selfType = static_cast<Type*>($4.node);
       for (auto &node : $5.list->nodes) {
         decl->members.emplace_back(static_cast<Member*>(node));
       }
@@ -202,8 +213,9 @@
 
   module_self_type
     : %empty
+    { $$.node = NULL; }
     | kCOLON type
-    // TODO
+    { $$ = $2; }
 
   // Interfaces
 

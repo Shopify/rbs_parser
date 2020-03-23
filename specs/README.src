@@ -63,7 +63,7 @@ end
 
 The Enumerable method above requires each method for enumerating objects.
 
-TODO This has no equivalent in RBI.
+**Unsupported: This has no equivalent in RBI.**
 
 ### Interface declaration
 

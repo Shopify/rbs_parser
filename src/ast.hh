@@ -434,8 +434,9 @@ public:
 
 class Module : public Scope {
 public:
-    Module(Loc loc, std::string *name) : Scope(loc, name){};
-    virtual ~Module() {}
+    Type *selfType;
+    Module(Loc loc, std::string *name) : Scope(loc, name), selfType(NULL){};
+    virtual ~Module() { delete selfType; }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 

@@ -181,6 +181,10 @@ public:
         printLoc(decl);
         print("module " + *decl->name);
         printTypeParams(decl->typeParams);
+        if (decl->selfType != NULL) {
+            print(": ");
+            enterVisit(decl->selfType);
+        }
         printn();
         indent();
         for (int i = 0; i < decl->members.size(); i++) {

@@ -1,0 +1,3 @@
+1:12-1:17: Warning: Unsupported `module self type`
+4:18-4:26: Warning: Unsupported `module self type`
+7:17-7:29: Warning: Unsupported `module self type`

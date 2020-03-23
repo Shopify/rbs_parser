@@ -1,0 +1,8 @@
+module Foo : _Bar
+end
+
+module Foo::Bar: Foo::_Baz
+end
+
+module Baz[A, B]: _Each[A, B]
+end
