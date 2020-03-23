@@ -1,0 +1,26 @@
+interface ::_A
+  def a: () -> Integer
+end
+
+module B
+  include _A
+end
+
+interface B::_C
+  def c: () -> Integer
+end
+
+module D
+  include ::_A
+  include B::_C
+end
+
+interface _E[A, B]
+  def e: { (A) -> void } -> B
+end
+
+module F[A, B]
+  include _E[A, B]
+
+  def f: () -> Integer
+end

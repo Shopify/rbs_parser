@@ -15,4 +15,3 @@ module Bar
 
   B = type_member(:out)
 end
-

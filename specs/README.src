@@ -69,12 +69,14 @@ The Enumerable method above requires each method for enumerating objects.
 
 Interface declaration can have parameters but allows only a few of the members.
 
-```
+```rbs:interface
 interface _Hashing
   def hash: () -> Integer
   def eql?: (any) -> bool
 end
 ```
+
+[[rbi:interface]]
 
 There are several limitations which are not described in the grammar.
 
@@ -87,8 +89,6 @@ interface _Foo
   def self.new: () -> Foo      # Error: cannot include singleton method definitions
 end
 ```
-
-TODO This has no equivalent in RBI.
 
 ### Extension declaration
 
@@ -281,13 +281,14 @@ end
 
 You can also include or extend an interface.
 
-```
-include _Hashing
-extend _LikeString
-This allows importing defs from the interface to help developer implementing a set of methods.
+```rbs:mixin_interface
+class Foo
+  include _Hashing
+  extend _LikeString
+end
 ```
 
-TODO This has no equivalent in RBI.
+[[rbi:mixin_interface]]
 
 ### Alias
 
@@ -316,7 +317,7 @@ TODO This has no equivalent in RBI.
 | ------------------------------------- | ---- | ---- |
 | class instance                        |  ✅  |  ✅  |
 | class singleton                       |  ✅  |  ✅  |
-| interface                             |  ✅  |  ❌  |
+| interface                             |  ✅  |  🔶  |
 | alias                                 |  ✅  |  🔶  |
 | literal                               |  ✅  |  🔶  |
 | union                                 |  ✅  |  ✅  |
@@ -364,13 +365,12 @@ T2: singleton(::Hash)      # Class singleton type cannot be parametrized.
 
 Interface type denotes type of a value which can be a subtype of the interface.
 
-```
-_ToS                          # _ToS interface
-::MyApp::_Each[String]        # Interface name with namespace and type application
+```rbs:type_interface
+T1: _ToS                          # _ToS interface
+T2: ::MyApp::_Each[String]        # Interface name with namespace and type application
 ```
 
-TODO This has no equivalent in RBI.
-TODO use a module?
+[[rbi:type_interface]]
 
 ### Alias type
 

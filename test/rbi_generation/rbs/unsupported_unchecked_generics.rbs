@@ -3,6 +3,3 @@ end
 
 module Bar[unchecked in A, unchecked out B]
 end
-
-interface _Baz[unchecked B]
-end

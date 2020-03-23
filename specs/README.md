@@ -75,16 +75,28 @@ end
 
 The Enumerable method above requires each method for enumerating objects.
 
-TODO This has no equivalent in RBI.
+**Unsupported: This has no equivalent in RBI.**
 
 ### Interface declaration
 
 Interface declaration can have parameters but allows only a few of the members.
 
-```
+```rbs:interface
 interface _Hashing
   def hash: () -> Integer
   def eql?: (any) -> bool
+end
+```
+
+```rbi
+module Hashing
+  extend T::Sig
+
+  sig { returns(Integer) }
+  def hash; end
+
+  sig { params(arg0: T.untyped).returns(T::Boolean) }
+  def eql?(arg0); end
 end
 ```
 
@@ -99,8 +111,6 @@ interface _Foo
   def self.new: () -> Foo      # Error: cannot include singleton method definitions
 end
 ```
-
-TODO This has no equivalent in RBI.
 
 ### Extension declaration
 
@@ -357,13 +367,22 @@ end
 
 You can also include or extend an interface.
 
-```
-include _Hashing
-extend _LikeString
-This allows importing defs from the interface to help developer implementing a set of methods.
+```rbs:mixin_interface
+class Foo
+  include _Hashing
+  extend _LikeString
+end
 ```
 
-TODO This has no equivalent in RBI.
+```rbi
+class Foo
+  extend T::Sig
+
+  include Hashing
+
+  extend LikeString
+end
+```
 
 ### Alias
 
@@ -401,7 +420,7 @@ TODO This has no equivalent in RBI.
 | ------------------------------------- | ---- | ---- |
 | class instance                        |  ✅  |  ✅  |
 | class singleton                       |  ✅  |  ✅  |
-| interface                             |  ✅  |  ❌  |
+| interface                             |  ✅  |  🔶  |
 | alias                                 |  ✅  |  🔶  |
 | literal                               |  ✅  |  🔶  |
 | union                                 |  ✅  |  ✅  |
@@ -456,13 +475,15 @@ T2 = T.class_of(::Hash)
 
 Interface type denotes type of a value which can be a subtype of the interface.
 
-```
-_ToS                          # _ToS interface
-::MyApp::_Each[String]        # Interface name with namespace and type application
+```rbs:type_interface
+T1: _ToS                          # _ToS interface
+T2: ::MyApp::_Each[String]        # Interface name with namespace and type application
 ```
 
-TODO This has no equivalent in RBI.
-TODO use a module?
+```rbi
+T1 = ToS
+T2 = ::MyApp::Each[String]
+```
 
 ### Alias type
 

@@ -11,8 +11,9 @@ namespace rbs_parser {
 class PrintRBI : public PrintVisitor {
 public:
     std::set<std::string> typeNames;
+    bool inInclude;
 
-    PrintRBI(std::ostream &output) : PrintVisitor(output){};
+    PrintRBI(std::ostream &output) : PrintVisitor(output), inInclude(false){};
 
     virtual void visit(File *file) {
         printl("# typed: true");
@@ -61,6 +62,7 @@ public:
             // } else if (name.length() > 1 && name.find("_", 0) == 0) {
             // print(name.substr(1, name.length() - 1));
         } else {
+            name = sanitizeInterfaceName(name);
             print(name);
         }
     }
@@ -69,6 +71,40 @@ public:
         std::cerr << node->loc.toString();
         std::cerr << ": Warning: ";
         std::cerr << message << std::endl;
+    }
+
+    // Names sanitizing
+
+    std::vector<std::string> splitNamespace(std::string name) {
+        std::vector<std::string> res;
+        size_t pos = 0;
+        std::string token;
+        std::string delimiter = "::";
+
+        while ((pos = name.find(delimiter)) != std::string::npos) {
+            token = name.substr(0, pos);
+            res.emplace_back(token);
+            name.erase(0, pos + delimiter.length());
+        }
+        res.emplace_back(name);
+
+        return res;
+    }
+
+    std::string sanitizeInterfaceName(std::string name) {
+        std::string res;
+        std::vector<std::string> names = splitNamespace(name);
+        for (int i = 0; i < names.size(); i++) {
+            if (i != 0) {
+                res += "::";
+            }
+            if (i == names.size() - 1 && names[i].find("_") == 0) {
+                res += names[i].substr(1, names[i].length() - 1);
+            } else {
+                res += names[i];
+            }
+        }
+        return res;
     }
 
     // Types
@@ -169,9 +205,11 @@ public:
 
     virtual void visit(TypeGeneric *type) {
         printTypeName(*type->name);
-        print("[");
-        printTypes(type->types);
-        print("]");
+        if (!inInclude) {
+            print("[");
+            printTypes(type->types);
+            print("]");
+        }
     }
 
     virtual void visit(TypeProc *type) {
@@ -267,8 +305,8 @@ public:
     }
 
     virtual void visit(Interface *decl) {
-        warnUnsupported(static_cast<Node *>(decl), "Unsupported `interface`");
-        // printScope("module", decl->name->substr(1, decl->name->length() - 1), decl);
+        std::string name = sanitizeInterfaceName(*decl->name);
+        printScope("module", name, decl);
     }
 
     virtual void visit(Extension *decl) { warnUnsupported(static_cast<Node *>(decl), "Unsupported `extension`"); }
@@ -330,29 +368,22 @@ public:
         printl("attr_accessor :" + *decl->name);
     }
 
-    virtual void visit(Include *include) {
+    void printInclude(std::string kind, Type *type) {
+        inInclude = true;
         printn();
         printt();
-        print("include ");
-        enterVisit(include->type);
+        print(kind);
+        print(" ");
+        enterVisit(type);
         printn();
+        inInclude = false;
     }
 
-    virtual void visit(Extend *extend) {
-        printn();
-        printt();
-        print("extend ");
-        enterVisit(extend->type);
-        printn();
-    }
+    virtual void visit(Include *include) { printInclude("include", include->type); }
 
-    virtual void visit(Prepend *prepend) {
-        printn();
-        printt();
-        print("prepend ");
-        enterVisit(prepend->type);
-        printn();
-    }
+    virtual void visit(Extend *extend) { printInclude("extend", extend->type); }
+
+    virtual void visit(Prepend *prepend) { printInclude("prepend", prepend->type); }
 
     virtual void visit(Visibility *decl) {
         warnUnsupported(static_cast<Node *>(decl), "Unsupported `" + *decl->name + "`");
