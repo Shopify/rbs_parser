@@ -165,7 +165,14 @@ public:
     std::vector<Type *> types;
 
     TypeGeneric(Loc loc, std::string *name) : Type(loc), name(name) {}
-    virtual ~TypeGeneric() {}
+
+    virtual ~TypeGeneric() {
+        delete name;
+        for (auto type : types) {
+            delete type;
+        }
+    }
+
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -191,7 +198,13 @@ public:
 
     TypeIntersection(Loc loc) : Type(loc){};
     TypeIntersection(Loc loc, std::vector<Type *> types) : Type(loc), types(types){};
-    virtual ~TypeIntersection() {}
+
+    virtual ~TypeIntersection() {
+        for (auto type : types) {
+            delete type;
+        }
+    }
+
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -206,6 +219,26 @@ class TypeNilable : public Type {
 public:
     Type *type;
     TypeNilable(Loc loc, Type *type) : Type(loc), type(type) {}
+    virtual ~TypeNilable() { delete type; }
+    virtual void acceptVisitor(Visitor *v) { v->visit(this); }
+};
+
+class Param : public Node {
+public:
+    std::string *name;
+    Type *type;
+    bool keyword = false;
+    bool optional = false;
+    bool vararg = false;
+
+    Param(Loc loc, std::string *name, Type *type, bool keyword, bool optional, bool vararg)
+        : Node(loc), name(name), type(type), keyword(keyword), optional(optional), vararg(vararg) {}
+
+    virtual ~Param() {
+        delete name;
+        delete type;
+    }
+
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -218,7 +251,12 @@ public:
     TypeProc(Loc loc, Type *ret) : Type(loc), ret(ret){};
     TypeProc(Loc loc, std::vector<Param *> params, Type *ret) : Type(loc), params(params), ret(ret) {}
 
-    virtual ~TypeProc() { delete ret; }
+    virtual ~TypeProc() {
+        for (auto param : params) {
+            delete param;
+        }
+        delete ret;
+    }
 
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
@@ -289,7 +327,13 @@ public:
     std::vector<Type *> types;
 
     TypeTuple(Loc loc) : Type(loc){};
-    virtual ~TypeTuple() {}
+
+    virtual ~TypeTuple() {
+        for (auto type : types) {
+            delete type;
+        }
+    }
+
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -299,7 +343,13 @@ public:
 
     TypeUnion(Loc loc) : Type(loc){};
     TypeUnion(Loc loc, std::vector<Type *> types) : Type(loc), types(types){};
-    virtual ~TypeUnion() {}
+
+    virtual ~TypeUnion() {
+        for (auto type : types) {
+            delete type;
+        }
+    }
+
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -339,7 +389,13 @@ public:
     std::vector<RecordField *> fields;
 
     Record(Loc loc) : Type(loc) {}
-    virtual ~Record() {}
+
+    virtual ~Record() {
+        for (auto field : fields) {
+            delete field;
+        }
+    }
+
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -369,6 +425,12 @@ public:
     virtual ~Decl() {}
 };
 
+class Member : public Node {
+public:
+    Member(Loc loc) : Node(loc){};
+    virtual ~Member() {}
+};
+
 class Scope : public Decl {
 public:
     std::string *name;
@@ -376,7 +438,16 @@ public:
     std::vector<Member *> members;
 
     Scope(Loc loc, std::string *name) : Decl(loc), name(name){};
-    virtual ~Scope() { delete name; }
+
+    virtual ~Scope() {
+        delete name;
+        for (auto type : typeParams) {
+            delete type;
+        }
+        for (auto member : members) {
+            delete member;
+        }
+    }
 };
 
 class Class : public Scope {
@@ -455,11 +526,6 @@ public:
 
 // Class members
 
-class Member : public Node {
-public:
-    Member(Loc loc) : Node(loc){};
-};
-
 class Alias : public Member {
 public:
     std::string *from;
@@ -531,6 +597,37 @@ public:
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
+// Methods
+
+class Block : public Type {
+public:
+    TypeProc *sig;
+    bool optional = false;
+
+    Block(Loc loc, TypeProc *sig, bool optional) : Type(loc), sig(sig), optional(optional){};
+    virtual ~Block() { delete sig; }
+    virtual void acceptVisitor(Visitor *v) { v->visit(this); }
+};
+
+class MethodType : public Node {
+public:
+    std::vector<TypeParam *> typeParams;
+    TypeProc *sig;
+    Block *block;
+
+    MethodType(Loc loc, TypeProc *sig) : Node(loc), sig(sig), block(NULL) {}
+
+    virtual ~MethodType() {
+        for (auto type : typeParams) {
+            delete type;
+        }
+        delete sig;
+        delete block;
+    }
+
+    virtual void acceptVisitor(Visitor *v) { v->visit(this); }
+};
+
 class Method : public Member {
 public:
     std::string *name;
@@ -541,7 +638,14 @@ public:
 
     Method(Loc loc, std::string *name, bool instance, bool singleton, bool incompatible)
         : Member(loc), name(name), instance(instance), singleton(singleton), incompatible(incompatible){};
-    virtual ~Method() { delete name; }
+
+    virtual ~Method() {
+        delete name;
+        for (auto type : types) {
+            delete type;
+        }
+    }
+
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -560,47 +664,6 @@ public:
 
     Visibility(Loc loc, std::string *name) : Member(loc), name(name) {}
     virtual ~Visibility() { delete name; }
-    virtual void acceptVisitor(Visitor *v) { v->visit(this); }
-};
-
-// Methods
-
-class MethodType : public Node {
-public:
-    std::vector<TypeParam *> typeParams;
-    TypeProc *sig;
-    Block *block;
-
-    MethodType(Loc loc, TypeProc *sig) : Node(loc), sig(sig), block(NULL) {}
-    // virtual ~MethodType() { delete sig; delete block; }
-    virtual void acceptVisitor(Visitor *v) { v->visit(this); }
-};
-
-class Block : public Type {
-public:
-    TypeProc *sig;
-    bool optional = false;
-
-    Block(Loc loc, TypeProc *sig, bool optional) : Type(loc), sig(sig), optional(optional){};
-    virtual ~Block() { delete sig; }
-    virtual void acceptVisitor(Visitor *v) { v->visit(this); }
-};
-
-class Param : public Node {
-public:
-    std::string *name;
-    Type *type;
-    bool keyword = false;
-    bool optional = false;
-    bool vararg = false;
-
-    Param(Loc loc, std::string *name, Type *type, bool keyword, bool optional, bool vararg)
-        : Node(loc), name(name), type(type), keyword(keyword), optional(optional), vararg(vararg) {}
-
-    virtual ~Param() {
-        delete name;
-        delete type;
-    }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 } // namespace rbs_parser
