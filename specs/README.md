@@ -16,7 +16,7 @@
 | interface                             |  ✅  |  🔶  |
 | extension                             |  ✅  |  ❌  |
 | struct                                |  ❌  |  ✅  |
-| type_alias                            |  ✅  |  ✅  |
+| type alias                            |  ✅  |  ✅  |
 | constant                              |  ✅  |  ✅  |
 | global                                |  ✅  |  ❌  |
 
@@ -142,10 +142,8 @@ type JSON::t = Integer | TrueClass | FalseClass | String | Hash[Symbol, t] | Arr
 
 ```rbi
 Subject = T.type_alias { T.any(Attendee, Speaker) }
-JSON::T = T.type_alias { T.any(Integer, TrueClass, FalseClass, String, T::Hash[Symbol, t], T::Array[t]) }
+JSON::T = T.type_alias { T.any(Integer, TrueClass, FalseClass, String, T::Hash[Symbol, T], T::Array[T]) }
 ```
-
-TODO Check names with Sorbet
 
 ### Constant type declaration
 
@@ -439,7 +437,6 @@ TODO This has no equivalent in RBI.
 | base types                            |  ✅  |  🔶  |
 
 TODO split literal
-TODO aliases names
 
 ### Class instance type
 
@@ -491,13 +488,15 @@ Alias type denotes an alias declared with alias declaration.
 
 The name of type aliases starts with lowercase [a-z].
 
-```
-name
-::JSON::t                    # Alias name with namespace
+```rbs:ref_alias
+T1: name
+T2: ::JSON::t                    # Alias name with namespace
 ```
 
-TODO This has no equivalent in RBI.
-TODO aliases names with upercase?
+```rbi
+T1 = Name
+T2 = ::JSON::T
+```
 
 ### Literal type
 

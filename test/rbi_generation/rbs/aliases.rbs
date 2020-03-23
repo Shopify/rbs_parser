@@ -1,3 +1,7 @@
+class TestFoo
+  def foo: (foo2, Foo::baz2) -> bar2
+end
+
 module Foo end
 module Foo::Bar end
 

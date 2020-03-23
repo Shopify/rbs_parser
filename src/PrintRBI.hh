@@ -63,6 +63,7 @@ public:
             // print(name.substr(1, name.length() - 1));
         } else {
             name = sanitizeInterfaceName(name);
+            name = sanitizeAliasName(name);
             print(name);
         }
     }
