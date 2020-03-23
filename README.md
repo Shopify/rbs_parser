@@ -50,11 +50,67 @@ class Calculator
 end
 ```
 
-## Running the tests
+## What's supported?
 
-```sh
-$ make check
-```
+Take a look at [our comparison of RBS and RBI](specs/README.md).
+
+| Declarations                          | RBS  | RBI  |
+| ------------------------------------- | ---- | ---- |
+| class                                 |  ✅  |  ✅  |
+| class parent                          |  ✅  |  ✅  |
+| class abstract                        |  ❌  |  ✅  |
+| class final                           |  ❌  |  ✅  |
+| class sealed                          |  ❌  |  ✅  |
+| module                                |  ✅  |  ✅  |
+| module final                          |  ❌  |  ✅  |
+| module self type                      |  ✅  |  ❌  |
+| interface                             |  ✅  |  🔶  |
+| extension                             |  ✅  |  ❌  |
+| struct                                |  ❌  |  ✅  |
+| type alias                            |  ✅  |  ✅  |
+| constant                              |  ✅  |  ✅  |
+| global                                |  ✅  |  ❌  |
+
+| Members                               | RBS  | RBI  |
+| ------------------------------------- | ---- | ---- |
+| ivar                                  |  ✅  |  ❌  |
+| method                                |  ✅  |  ✅  |
+| method multiple signatures            |  ✅  |  🔶  |
+| method self                           |  ✅  |  ✅  |
+| method self?                          |  ✅  |  🔶  |
+| method super                          |  ✅  |  ❌  |
+| method final                          |  ❌  |  ✅  |
+| method override                       |  ❌  |  ✅  |
+| attr reader                           |  ✅  |  ✅  |
+| attr writer                           |  ✅  |  ✅  |
+| attr accessor                         |  ✅  |  ✅  |
+| attr instance variable                |  ✅  |  ❌  |
+| mixin                                 |  ✅  |  ✅  |
+| mixin interface                       |  ✅  |  ❌  |
+| alias                                 |  ✅  |  🔶  |
+| visibility                            |  ✅  |  ❌  |
+
+| Types                                 | RBS  | RBI  |
+| ------------------------------------- | ---- | ---- |
+| class instance                        |  ✅  |  ✅  |
+| class singleton                       |  ✅  |  ✅  |
+| interface                             |  ✅  |  🔶  |
+| alias                                 |  ✅  |  🔶  |
+| literal                               |  ✅  |  🔶  |
+| union                                 |  ✅  |  ✅  |
+| intersection                          |  ✅  |  ✅  |
+| optional                              |  ✅  |  ✅  |
+| record                                |  ✅  |  ✅  |
+| tuple                                 |  ✅  |  ✅  |
+| enum                                  |  ❌  |  ✅  |
+| type parameters                       |  ✅  |  ✅  |
+| type parameters bound                 |  ❌  |  ✅  |
+| type parameters variance              |  ✅  |  ✅  |
+| type parameters unchecked             |  ✅  |  ❌  |
+| method type parameters                |  ✅  |  ✅  |
+| proc                                  |  ✅  |  ✅  |
+| attached class                        |  ❌  |  ✅  |
+| base types                            |  ✅  |  🔶  |
 
 ## Writing your own translator
 
@@ -80,6 +136,12 @@ public:
 
 	// ...
 }
+```
+
+## Running the tests
+
+```sh
+$ make check
 ```
 
 ## Contributing
