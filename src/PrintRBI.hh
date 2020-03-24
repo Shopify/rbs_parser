@@ -10,13 +10,15 @@ namespace rbs_parser {
 
 class PrintRBI : public PrintVisitor {
 public:
+    std::string typedLevel;
     std::set<std::string> typeNames;
     bool inInclude;
 
-    PrintRBI(std::ostream &output) : PrintVisitor(output), inInclude(false){};
+    PrintRBI(std::ostream &output) : PrintVisitor(output), typedLevel("true"), inInclude(false){};
+    PrintRBI(std::ostream &output, std::string level) : PrintVisitor(output), typedLevel(level), inInclude(false){};
 
     virtual void visit(File *file) {
-        printl("# typed: true");
+        printl("# typed: " + typedLevel);
         bool lastWasBlock = true;
         for (int i = 0; i < file->decls.size(); i++) {
             auto *decl = file->decls[i];

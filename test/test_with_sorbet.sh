@@ -14,7 +14,7 @@ run_test() {
 
     TESTS=$((TESTS + 1))
 
-    if ! ("$cmd" "$file" | sed 's/typed: true/typed: __STDLIB_INTERNAL/') > "$test_out" 2> "$test_err"; then
+    if ! ("$cmd" -t __STDLIB_INTERNAL "$file") > "$test_out" 2> "$test_err"; then
         echo -e " * [\033[1;31mKO\033[0;37m] $file \033[1;90m(command failed see $test_err)\033[1;37m"
         ERRS=$((ERRS+1))
         return 1
