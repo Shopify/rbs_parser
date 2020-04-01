@@ -24,7 +24,7 @@
 
 A class is declared thanks to the `class` keyword in both RBS and RBI.
 
-```rbs:class
+```ruby
 class Student
 end
 ```
@@ -36,7 +36,7 @@ end
 
 Class declaration can have a superclass. When you omit superclass, `::Object` is assumed.
 
-```rbs:class_parent
+```ruby
 class Student < Person
 end
 ```
@@ -48,7 +48,7 @@ end
 
 ### Module declaration
 
-```rbs:module
+```ruby
 module Enumerable
 end
 ```
@@ -78,7 +78,7 @@ The Enumerable method above requires each method for enumerating objects.
 
 Interface declaration can have parameters but allows only a few of the members.
 
-```rbs:interface
+```ruby
 interface _Hashing
   def hash: () -> Integer
   def eql?: (any) -> bool
@@ -131,7 +131,7 @@ end
 
 You can declare an alias of types.
 
-```rbs:type_alias
+```ruby
 type subject = Attendee | Speaker
 type JSON::t = Integer | TrueClass | FalseClass | String | Hash[Symbol, t] | Array[t]
 ```
@@ -145,7 +145,7 @@ JSON::T = T.type_alias { T.any(Integer, TrueClass, FalseClass, String, T::Hash[S
 
 You can declare a constant.
 
-```rbs:constant
+```ruby
 Person::DefaultEmailAddress: String
 ```
 
@@ -203,7 +203,7 @@ Method definition has several syntax variations.
 
 You can write `self.` or `self?.` before the name of the method to specify the kind of method: instance, singleton, or both instance and singleton.
 
-```rbs:method
+```ruby
 class Foo
   def to_s: () -> String                        # Defines a instance method
   def self.new: () -> AnObject                  # Defines singleton method
@@ -227,7 +227,7 @@ end
 
 A parameter can be a type or a pair of type and variable name. Variable name can be used for documentation.
 
-```rbs:method_params
+```ruby
 class Foo
   # Two required positional `Integer` parameters, and returns `String`
   def f1: (Integer, Integer) -> String
@@ -265,7 +265,7 @@ end
 
 The method type can be connected with `|`s to define an overloaded method.
 
-```rbs:methods
+```ruby
 class Foo
   def +: (Float) -> Float
        | (Integer) -> Integer
@@ -285,7 +285,7 @@ end
 
 You need extra parentheses on return type to avoid ambiguity.
 
-```rbs:method_returns
+```ruby
 class Foo
   def +: (Float | Integer) -> (Float | Integer)
        | (Numeric) -> Numeric
@@ -309,7 +309,7 @@ Method types can end with super which means the methods from existing definition
 
 Attribute definitions help to define methods and instance variables based on the convention of `attr_reader`, `attr_writer` and `attr_accessor` methods in Ruby.
 
-```rbs:attr
+```ruby
 class Student
   attr_reader name: String
   attr_writer age: Integer
@@ -344,7 +344,7 @@ end
 
 You can define mixins between class and modules.
 
-```rbs:mixin
+```ruby
 class Foo
   include Kernel
   include Enumerable[String, void]
@@ -356,7 +356,7 @@ end
 
 You can also include or extend an interface.
 
-```rbs:mixin_interface
+```ruby
 class Foo
   include _Hashing
   extend _LikeString
@@ -376,7 +376,7 @@ end
 
 You can define an alias between methods.
 
-```rbs:alias
+```ruby
 class Student
   def name: -> String
   alias first_name name      # `#first_name` has the same type with `name`
@@ -429,7 +429,7 @@ These work only as statements, not per-method specifier.
 
 Class instance type denotes an instance of a class.
 
-```rbs:type_instance
+```ruby
 T1: Integer
 T2: ::Integer
 T3: Hash[Symbol, String]
@@ -445,7 +445,7 @@ T3 = T::Hash[Symbol, String]
 
 Class singleton type denotes the type of a singleton object of a class.
 
-```rbs:type_singleton
+```ruby
 T1: singleton(String)
 T2: singleton(::Hash)      # Class singleton type cannot be parametrized.
 ```
@@ -459,7 +459,7 @@ T2 = T.class_of(::Hash)
 
 Interface type denotes type of a value which can be a subtype of the interface.
 
-```rbs:type_interface
+```ruby
 T1: _ToS                          # _ToS interface
 T2: ::MyApp::_Each[String]        # Interface name with namespace and type application
 ```
@@ -475,7 +475,7 @@ Alias type denotes an alias declared with alias declaration.
 
 The name of type aliases starts with lowercase [a-z].
 
-```rbs:ref_alias
+```ruby
 T1: name
 T2: ::JSON::t                    # Alias name with namespace
 ```
@@ -489,7 +489,7 @@ T2 = ::JSON::T
 
 Literal type denotes a type with only one value of the literal.
 
-```rbs:type_literals
+```ruby
 T1: 123                         # Integer
 T2: "hello world"               # A string
 T3: :to_s                       # A symbol
@@ -509,7 +509,7 @@ T4 = T::Boolean
 
 Union type denotes a type of one of the given types.
 
-```rbs:type_unions
+```ruby
 T1: Integer | String           # Integer or String
 T2: Array[Integer | String]    # Array of Integer or String
 ```
@@ -523,7 +523,7 @@ T2 = T::Array[T.any(Integer, String)]
 
 Intersection type denotes a type of all of the given types.
 
-```rbs:type_inters
+```ruby
 T1: Integer & String           # Integer and String
 ```
 
@@ -537,7 +537,7 @@ T1 = T.all(Integer, String)
 
 Optional type denotes a type of value or nil.
 
-```rbs:type_optionals
+```ruby
 T1: Integer?
 T2: Array[Integer?]
 ```
@@ -551,7 +551,7 @@ T2 = T::Array[T.nilable(Integer)]
 
 Records are Hash objects, fixed set of keys, and heterogeneous.
 
-```rbs:records
+```ruby
 T1: { id: Integer, name: String }     # Hash object like `{ id: 31, name: String }`
 ```
 
@@ -563,7 +563,7 @@ T1 = { id: Integer, name: String }
 
 Tuples are Array objects, fixed size and heterogeneous.
 
-```rbs:type_tuples
+```ruby
 T1: [ ]                               # Empty like `[]`
 T2: [String]                          # Single string like `["hi"]`
 T3: [Integer, Integer]                # Pair of integers like `[1, 2]`
@@ -581,7 +581,7 @@ Empty tuple or 1-tuple sound strange, but RBS allows these types.
 
 ### Type variable
 
-```rbs:type_var
+```ruby
 T1: U
 T2: T
 T3: S
@@ -597,7 +597,7 @@ T4 = Elem
 
 Type variables cannot be distinguished from class instance types. They are scoped in class/module/interface declaration or generic method types.
 
-```rbs:generics
+```ruby
 class Ref[T]              # Object is scoped in the class declaration.
   def map: [X] { (T) -> X } -> Ref[X]   # X is a type variable scoped in the method type.
 end
@@ -616,7 +616,7 @@ end
 
 Variance can be applied to type variables:
 
-```rbs:generic_variance
+```ruby
 module Edge[in X, out Y]
 end
 
@@ -653,7 +653,7 @@ end
 
 Proc type denots type of procedures, Proc instances.
 
-```rbs:type_procs
+```ruby
 T1: ^(Integer) -> String                  # A procedure with an `Integer` parameter and returns `String`
 T2: ^(?String, size: Integer) -> bool     # A procedure with `String` optional parameter, `size` keyword of `Integer`, and returns `bool`
 ```
@@ -665,7 +665,7 @@ T2 = T.proc.params(arg0: T.nilable(String), size: Integer).returns(T::Boolean)
 
 ### Base types
 
-```rbs:type_base
+```ruby
 T1: self		# denotes the type of receiver. The type is used to model the open recursion via self.
 T2: instance	# denotes the type of instance of the class.
 T3: class		# denotes the type of the singleton of the `self` class.

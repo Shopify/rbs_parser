@@ -63,6 +63,8 @@ render() {
 			echo "\`\`\`rbi"
 			sed '1,2d' < "$rbi"
 			echo "\`\`\`"
+        elif [[ "$line" =~ \`\`\`rbs:([a-z_]+)$ ]]; then
+            echo "\`\`\`ruby"
 		else
 			echo -e "$line"
 		fi
