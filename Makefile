@@ -54,11 +54,15 @@ check_format:
 	./tools/format_cxx.sh
 
 .PHONY:
-check: check_lexer check_parser check_rbi check_rbi_with_sorbet check_stdlib check_format
+check: check_lexer check_parser check_rbi check_rbi_with_sorbet check_stdlib check_format check_specs
 
 .PHONY:
 gen_specs: rbs2rbi specs/README.src
 	specs/build.sh ./rbs2rbi specs/README.src > specs/README.md
+
+.PHONY:
+check_specs: rbs2rbi specs/README.src
+	test/test_specs.sh
 
 .PHONY:
 clean:
