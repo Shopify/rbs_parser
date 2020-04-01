@@ -87,7 +87,6 @@ end
 
 ```rbi
 module Hashing
-
   sig { returns(Integer) }
   def hash; end
 
@@ -213,7 +212,6 @@ end
 
 ```rbi
 class Foo
-
   sig { returns(String) }
   def to_s; end
 
@@ -248,7 +246,6 @@ end
 
 ```rbi
 class Foo
-
   sig { params(arg0: Integer, arg1: Integer).returns(String) }
   def f1(arg0, arg1); end
 
@@ -275,7 +272,6 @@ end
 
 ```rbi
 class Foo
-
   sig { params(arg0: Float).returns(Float) }
   sig { params(arg0: Integer).returns(Integer) }
   sig { params(arg0: Numeric).returns(Numeric) }
@@ -294,7 +290,6 @@ end
 
 ```rbi
 class Foo
-
   sig { params(arg0: T.any(Float, Integer)).returns(T.any(Float, Integer)) }
   sig { params(arg0: Numeric).returns(Numeric) }
   def +(arg0); end
@@ -319,7 +314,6 @@ end
 
 ```rbi
 class Student
-
   sig { returns(String) }
   attr_reader :name
 
@@ -365,7 +359,6 @@ end
 
 ```rbi
 class Foo
-
   include Hashing
 
   extend LikeString
@@ -385,7 +378,6 @@ end
 
 ```rbi
 class Student
-
   sig { returns(String) }
   def name; end
 

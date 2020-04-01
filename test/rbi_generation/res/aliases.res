@@ -1,7 +1,6 @@
 # typed: true
 
 class TestFoo
-
   sig { params(arg0: Foo2, arg1: Foo::Baz2).returns(Bar2) }
   def foo(arg0, arg1); end
 end

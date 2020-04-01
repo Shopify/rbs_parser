@@ -1,7 +1,6 @@
 # typed: true
 
 class Foo
-
   def methodA; end
 
   sig { void }

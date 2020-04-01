@@ -1,7 +1,6 @@
 # typed: true
 
 class Foo
-
   sig { params(_blk: T.proc.void).void }
   def foo1(_blk); end
 

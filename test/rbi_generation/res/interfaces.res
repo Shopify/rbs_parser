@@ -1,24 +1,20 @@
 # typed: true
 
 module ::A
-
   sig { returns(Integer) }
   def a; end
 end
 
 module B
-
   include A
 end
 
 module B::C
-
   sig { returns(Integer) }
   def c; end
 end
 
 module D
-
   include ::A
 
   include B::C

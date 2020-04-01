@@ -1,7 +1,6 @@
 # typed: true
 
 module Foo
-
   sig { params(a: Integer, b: String).void }
   def foo(a, b); end
 
@@ -9,7 +8,6 @@ module Foo
 end
 
 class Bar
-
   include Foo
 
   sig { returns(Foo) }

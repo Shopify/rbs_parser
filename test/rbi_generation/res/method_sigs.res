@@ -13,7 +13,6 @@ module D
 end
 
 class Foo
-
   sig { params(arg0: A, arg1: B).returns(C) }
   sig { void }
   def foo(arg0, arg1); end

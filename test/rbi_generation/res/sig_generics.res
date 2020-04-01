@@ -1,7 +1,6 @@
 # typed: true
 
 class Foo
-
   sig { type_parameters(:X).params(arg0: T.type_parameter(:X)).returns(T.type_parameter(:X)) }
   def foo(arg0); end
 

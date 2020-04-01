@@ -280,7 +280,6 @@ public:
     // Declarations
 
     virtual void visit(TypeParam *param) {
-        printn();
         printt();
         print(*param->name);
         print(" = type_member(");
@@ -300,10 +299,14 @@ public:
         if (!decl->typeParams.empty()) {
             printl("extend T::Generic");
             for (int i = 0; i < decl->typeParams.size(); i++) {
+                printn();
                 enterVisit(decl->typeParams[i]);
             }
         }
         for (int i = 0; i < decl->members.size(); i++) {
+            if (i > 0 || !decl->typeParams.empty()) {
+                printn();
+            }
             enterVisit(decl->members[i]);
         }
         dedent();
@@ -348,7 +351,6 @@ public:
     // Class members
 
     virtual void visit(Alias *alias) {
-        printn();
         printt();
         print("alias ");
         print(sanitizeDefName(*alias->from));
@@ -360,7 +362,6 @@ public:
     virtual void visit(Attr *decl) {}
 
     virtual void visit(AttrReader *decl) {
-        printn();
         printt();
         print("sig { returns(");
         enterVisit(decl->type);
@@ -369,7 +370,6 @@ public:
     }
 
     virtual void visit(AttrWriter *decl) {
-        printn();
         printt();
         print("sig { params(" + *decl->name + ": ");
         enterVisit(decl->type);
@@ -378,7 +378,6 @@ public:
     }
 
     virtual void visit(AttrAccessor *decl) {
-        printn();
         printt();
         print("sig { returns(");
         enterVisit(decl->type);
@@ -388,7 +387,6 @@ public:
 
     void printInclude(std::string kind, Type *type) {
         inInclude = true;
-        printn();
         printt();
         print(kind);
         print(" ");
@@ -411,7 +409,6 @@ public:
         if (decl->incompatible) {
             warnUnsupported(static_cast<Node *>(decl), "Unsupported `incompatible`");
         }
-        printn();
         for (int i = 0; i < decl->types.size(); i++) {
             enterVisit(decl->types[i]);
             // break; // TODO handle multiple signatures
