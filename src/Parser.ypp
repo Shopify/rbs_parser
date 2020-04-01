@@ -13,8 +13,20 @@
 %parse-param { Driver& driver } { Lexer& lexer }
 
 %code requires {
-  namespace rbs_parser { class Driver; class Lexer; }
   #include "ast.hh"
+  #include <exception>
+  #include <sstream>
+
+  namespace rbs_parser {
+    class Driver;
+    class Lexer;
+
+    class ParseError: public std::logic_error {
+    public:
+        ParseError(const std::string &message) : logic_error(message) {}
+        ParseError(const char *message) : logic_error(message) {}
+    };
+  }
 
   union ParserValue {
     rbs_parser::NodeList *list;
@@ -735,8 +747,9 @@
 %%
 
 void rbs_parser::Parser::error(const location_type& loc, const std::string& m) {
-  std::cerr << loc.begin.line << ":" << loc.begin.column << "-";
-  std::cerr << loc.end.line << ":" << loc.end.column << ": ";
-  std::cerr << m << std::endl;
-  exit(1);
+  std::stringstream what;
+  what << loc.begin.line << ":" << std::to_string(loc.begin.column) << "-";
+  what << loc.end.line << ":" << std::to_string(loc.end.column) << ": ";
+  what << m;
+  throw rbs_parser::ParseError(what.str());
 }

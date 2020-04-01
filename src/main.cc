@@ -44,6 +44,9 @@ int main(int argc, char *argv[]) {
 
         PrintRBI visitor(std::cout, typed);
         file.acceptVisitor(&visitor);
+    } catch (ParseError e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
     } catch (FileNotFoundException e) {
         std::cerr << "Error: file `" << file.filename << "` not found." << std::endl;
         return 1;

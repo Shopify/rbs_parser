@@ -14,7 +14,13 @@ int main(int argc, char const *argv[]) {
     Driver driver(&file);
     Lexer lexer(file.source());
     Parser parser(driver, lexer);
-    parser.parse();
+
+    try {
+        parser.parse();
+    } catch (ParseError &e) {
+        std::cerr << e.what() << std::endl;
+        return 1;
+    }
 
     PrintAST visitor(std::cout);
     file.acceptVisitor(&visitor);
