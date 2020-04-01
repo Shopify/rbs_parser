@@ -1,14 +1,12 @@
 # typed: true
 
 class Type1
-  extend T::Sig
   extend T::Generic
 
   Elem = type_member()
 end
 
 class Type2
-  extend T::Sig
   extend T::Generic
 
   A = type_member()
@@ -17,7 +15,6 @@ class Type2
 end
 
 module Type3
-  extend T::Sig
   extend T::Generic
 
   A = type_member()
@@ -26,14 +23,12 @@ module Type3
 end
 
 module Type4
-  extend T::Sig
   extend T::Generic
 
   A = type_member(:in)
 end
 
 module Type5
-  extend T::Sig
   extend T::Generic
 
   A = type_member()
@@ -42,14 +37,12 @@ module Type5
 end
 
 class Type6
-  extend T::Sig
   extend T::Generic
 
   A = type_member(:in)
 end
 
 class Type7
-  extend T::Sig
   extend T::Generic
 
   A = type_member()

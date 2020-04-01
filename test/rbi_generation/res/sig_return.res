@@ -1,7 +1,6 @@
 # typed: true
 
 class Foo
-  extend T::Sig
 
   sig { void }
   def a; end
@@ -26,13 +25,10 @@ class Foo
 end
 
 module Foo::Bar
-  extend T::Sig
 end
 
 module A
-  extend T::Sig
 end
 
 module B
-  extend T::Sig
 end

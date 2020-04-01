@@ -1,27 +1,23 @@
 # typed: true
 
 module ::A
-  extend T::Sig
 
   sig { returns(Integer) }
   def a; end
 end
 
 module B
-  extend T::Sig
 
   include A
 end
 
 module B::C
-  extend T::Sig
 
   sig { returns(Integer) }
   def c; end
 end
 
 module D
-  extend T::Sig
 
   include ::A
 
@@ -29,7 +25,6 @@ module D
 end
 
 module E
-  extend T::Sig
   extend T::Generic
 
   A = type_member()
@@ -41,7 +36,6 @@ module E
 end
 
 module F
-  extend T::Sig
   extend T::Generic
 
   A = type_member()

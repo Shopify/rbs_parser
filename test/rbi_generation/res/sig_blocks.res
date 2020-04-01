@@ -1,7 +1,6 @@
 # typed: true
 
 class Foo
-  extend T::Sig
 
   sig { params(_blk: T.proc.void).void }
   def foo1(_blk); end

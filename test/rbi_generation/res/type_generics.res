@@ -1,34 +1,27 @@
 # typed: true
 
 module A
-  extend T::Sig
 end
 
 module B
-  extend T::Sig
 end
 
 module C
-  extend T::Sig
 end
 
 module D
-  extend T::Sig
 end
 
 module E
-  extend T::Sig
 end
 
 class Foo
-  extend T::Sig
   extend T::Generic
 
   U = type_member()
 end
 
 class Bar
-  extend T::Sig
   extend T::Generic
 
   U = type_member()

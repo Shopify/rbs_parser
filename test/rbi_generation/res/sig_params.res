@@ -1,7 +1,6 @@
 # typed: true
 
 class Foo
-  extend T::Sig
 
   def methodA; end
 

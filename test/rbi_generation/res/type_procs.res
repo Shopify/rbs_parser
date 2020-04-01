@@ -1,15 +1,12 @@
 # typed: true
 
 module A
-  extend T::Sig
 end
 
 module B
-  extend T::Sig
 end
 
 module C
-  extend T::Sig
 end
 
 T1 = T.proc.void

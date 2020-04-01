@@ -297,7 +297,6 @@ public:
     void printScope(std::string kind, std::string name, Scope *decl) {
         printl(kind + " " + name);
         indent();
-        printl("extend T::Sig");
         if (!decl->typeParams.empty()) {
             printl("extend T::Generic");
             for (int i = 0; i < decl->typeParams.size(); i++) {

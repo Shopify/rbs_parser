@@ -1,7 +1,6 @@
 # typed: true
 
 module Foo
-  extend T::Sig
 
   sig { params(a: Integer, b: String).void }
   def foo(a, b); end
@@ -10,7 +9,6 @@ module Foo
 end
 
 class Bar
-  extend T::Sig
 
   include Foo
 

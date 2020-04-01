@@ -1,18 +1,15 @@
 # typed: true
 
 class TestFoo
-  extend T::Sig
 
   sig { params(arg0: Foo2, arg1: Foo::Baz2).returns(Bar2) }
   def foo(arg0, arg1); end
 end
 
 module Foo
-  extend T::Sig
 end
 
 module Foo::Bar
-  extend T::Sig
 end
 
 FOO = T.type_alias { Integer }

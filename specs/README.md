@@ -31,7 +31,6 @@ end
 
 ```rbi
 class Student
-  extend T::Sig
 end
 ```
 
@@ -44,7 +43,6 @@ end
 
 ```rbi
 class Student < Person
-  extend T::Sig
 end
 ```
 
@@ -57,7 +55,6 @@ end
 
 ```rbi
 module Enumerable
-  extend T::Sig
 end
 ```
 
@@ -90,7 +87,6 @@ end
 
 ```rbi
 module Hashing
-  extend T::Sig
 
   sig { returns(Integer) }
   def hash; end
@@ -217,7 +213,6 @@ end
 
 ```rbi
 class Foo
-  extend T::Sig
 
   sig { returns(String) }
   def to_s; end
@@ -253,7 +248,6 @@ end
 
 ```rbi
 class Foo
-  extend T::Sig
 
   sig { params(arg0: Integer, arg1: Integer).returns(String) }
   def f1(arg0, arg1); end
@@ -281,7 +275,6 @@ end
 
 ```rbi
 class Foo
-  extend T::Sig
 
   sig { params(arg0: Float).returns(Float) }
   sig { params(arg0: Integer).returns(Integer) }
@@ -301,7 +294,6 @@ end
 
 ```rbi
 class Foo
-  extend T::Sig
 
   sig { params(arg0: T.any(Float, Integer)).returns(T.any(Float, Integer)) }
   sig { params(arg0: Numeric).returns(Numeric) }
@@ -327,7 +319,6 @@ end
 
 ```rbi
 class Student
-  extend T::Sig
 
   sig { returns(String) }
   attr_reader :name
@@ -374,7 +365,6 @@ end
 
 ```rbi
 class Foo
-  extend T::Sig
 
   include Hashing
 
@@ -395,7 +385,6 @@ end
 
 ```rbi
 class Student
-  extend T::Sig
 
   sig { returns(String) }
   def name; end
@@ -616,7 +605,6 @@ end
 
 ```rbi
 class Ref
-  extend T::Sig
   extend T::Generic
 
   T = type_member()
@@ -638,7 +626,6 @@ end
 
 ```rbi
 module Edge
-  extend T::Sig
   extend T::Generic
 
   X = type_member(:in)
@@ -647,7 +634,6 @@ module Edge
 end
 
 class Ref
-  extend T::Sig
   extend T::Generic
 
   X = type_member(:in)
