@@ -432,6 +432,9 @@ public:
                     } else {
                         print("arg" + std::to_string(i));
                     }
+                    if (type->sig->params[i]->optional) {
+                        print(" = nil");
+                    }
                     if (i < type->sig->params.size() - 1) {
                         print(", ");
                     }
@@ -441,6 +444,9 @@ public:
                         print(", ");
                     }
                     print("_blk");
+                    if (type->block->optional) {
+                        print(" = nil");
+                    }
                 }
                 print(")");
             }

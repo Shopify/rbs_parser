@@ -253,7 +253,7 @@ class Foo
   def f1(arg0, arg1); end
 
   sig { params(size: T.nilable(Integer), name: T.nilable(String)).returns(String) }
-  def f2(size, name); end
+  def f2(size = nil, name = nil); end
 
   sig { params(arg0: Integer, arg1: Integer).void }
   def f3(arg0, arg1); end

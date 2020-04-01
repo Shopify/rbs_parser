@@ -8,13 +8,13 @@ class Foo
   def methodB; end
 
   sig { params(arg0: T.nilable(Integer)).void }
-  def methodC(arg0); end
+  def methodC(arg0 = nil); end
 
   sig { params(_: Integer).void }
   def methodD(_); end
 
   sig { params(arg0: T.nilable(Integer)).void }
-  def methodE(arg0); end
+  def methodE(arg0 = nil); end
 
   sig { params(a: Integer).void }
   def methodF(a); end
@@ -23,19 +23,19 @@ class Foo
   def methodG(arg0, arg1); end
 
   sig { params(arg0: ::Integer, arg1: T.nilable(::String)).void }
-  def methodH(arg0, arg1); end
+  def methodH(arg0, arg1 = nil); end
 
   sig { params(a: Integer, b: String).void }
   def methodI(a, b); end
 
   sig { params(arg0: T.nilable(String)).void }
-  def methodJ(arg0); end
+  def methodJ(arg0 = nil); end
 
   sig { params(a: T.nilable(String)).void }
-  def methodK(a); end
+  def methodK(a = nil); end
 
   sig { params(a: Integer, b: T.nilable(String)).void }
-  def methodL(a, b); end
+  def methodL(a, b = nil); end
 
   sig { params(arg0: String).void }
   def methodM(arg0); end
