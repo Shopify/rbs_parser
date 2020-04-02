@@ -277,7 +277,7 @@ class Foo
 end
 ```
 
-[[rbi::mixin]]
+[[rbi:mixin]]
 
 You can also include or extend an interface.
 

@@ -348,7 +348,15 @@ class Foo
 end
 ```
 
-[[rbi::mixin]]
+```rbi
+class Foo
+  include Kernel
+
+  include T::Enumerable
+
+  extend ActiveSupport::Concern
+end
+```
 
 You can also include or extend an interface.
 
