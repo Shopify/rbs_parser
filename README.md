@@ -109,7 +109,7 @@ Take a look at [our comparison of RBS and RBI](specs/README.md).
 | type parameters unchecked             |  ✅  |  ❌  |
 | method type parameters                |  ✅  |  ✅  |
 | proc                                  |  ✅  |  ✅  |
-| attached class                        |  ❌  |  ✅  |
+| instance type                         |  ✅  |  ✅  |
 | base types                            |  ✅  |  🔶  |
 
 ## Writing your own translator

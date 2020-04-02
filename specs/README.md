@@ -424,7 +424,7 @@ These work only as statements, not per-method specifier.
 | type parameters unchecked             |  ✅  |  ❌  |
 | method type parameters                |  ✅  |  ✅  |
 | proc                                  |  ✅  |  ✅  |
-| attached class                        |  ❌  |  ✅  |
+| instance type                         |  ✅  |  ✅  |
 | base types                            |  ✅  |  🔶  |
 
 ### Class instance type
@@ -681,7 +681,7 @@ T9: void		# is a supertype of all of the types.
 
 ```rbi
 T1 = T.self_type
-T2 = T.untyped
+T2 = T.attached_class
 T3 = T.class_of(T.self_type)
 T4 = T::Boolean
 T5 = T.untyped

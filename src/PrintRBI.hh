@@ -159,10 +159,7 @@ public:
 
     virtual void visit(TypeInteger *type) { print("Integer"); }
 
-    virtual void visit(TypeInstance *type) {
-        warnUnsupported(static_cast<Node *>(type), "Unsupported `instance`");
-        print("T.untyped");
-    }
+    virtual void visit(TypeInstance *type) { print("T.attached_class"); }
 
     virtual void visit(TypeSymbol *type) { print("Symbol"); }
 

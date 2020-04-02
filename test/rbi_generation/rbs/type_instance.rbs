@@ -1,0 +1,3 @@
+class Foo
+    def self.foo: -> instance
+end

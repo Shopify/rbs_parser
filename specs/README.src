@@ -332,7 +332,7 @@ These work only as statements, not per-method specifier.
 | type parameters unchecked             |  ✅  |  ❌  |
 | method type parameters                |  ✅  |  ✅  |
 | proc                                  |  ✅  |  ✅  |
-| attached class                        |  ❌  |  ✅  |
+| instance type                         |  ✅  |  ✅  |
 | base types                            |  ✅  |  🔶  |
 
 ### Class instance type
