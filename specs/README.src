@@ -256,6 +256,8 @@ end
 
 You can specify the name of instance variable using (`@some_name`) syntax and also omit the instance variable definition by specifying `()`.
 
+**Unsupported: This has no equivalent in RBI.**
+
 ```
 class Student
   attr_writer name (@raw_name) : String
