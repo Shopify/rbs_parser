@@ -55,13 +55,13 @@ fi
 
 # TODO when ready
 # Test with Sorbet
-# echo -e "\nTesting with sorbet:"
-# cd sorbet || exit 1
-# if ! bundle exec srb tc --no-stdlib; then
-    # echo -e " * [\033[1;31mKO\033[0;37m] bundle exec srb tc \033[1;90m(Sorbet produced errors)\033[1;37m"
-    # ERRS=$((ERRS+1))
-    # exit 2
-# fi
+echo -e "\nTesting with sorbet:"
+cd sorbet || exit 1
+if ! bundle exec srb tc --no-stdlib --stop-after namer; then
+    echo -e " * [\033[1;31mKO\033[0;37m] bundle exec srb tc \033[1;90m(Sorbet produced errors)\033[1;37m"
+    ERRS=$((ERRS+1))
+    exit 2
+fi
 
 # rm -rf out
 echo -e " * [\033[1;32mOK\033[0;37m] bundle exec srb tc"
