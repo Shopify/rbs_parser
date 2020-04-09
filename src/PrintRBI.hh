@@ -175,11 +175,11 @@ public:
     }
 
     virtual void visit(TypeSimple *type) {
-        bool isTypeParam = typeNames.find(*type->name) != typeNames.end();
+        bool isTypeParam = typeNames.find(type->name) != typeNames.end();
         if (isTypeParam) {
             print("T.type_parameter(:");
         }
-        print(sanitizeTypeName(*type->name));
+        print(sanitizeTypeName(type->name));
         if (isTypeParam) {
             print(")");
         }
@@ -187,7 +187,7 @@ public:
 
     virtual void visit(TypeSingleton *type) {
         print("T.class_of(");
-        print(*type->name);
+        print(type->name);
         print(")");
     }
 
@@ -219,7 +219,7 @@ public:
     }
 
     virtual void visit(TypeGeneric *type) {
-        print(sanitizeTypeName(*type->name));
+        print(sanitizeTypeName(type->name));
         if (!inInclude) {
             print("[");
             printTypes(type->types);
@@ -252,12 +252,12 @@ public:
     // Records
     virtual void visit(RecordField *field) {
         // TODO sanitize name
-        if (field->name->find(":", 0) == 0) {
-            print(field->name->substr(1, field->name->length() - 1));
-        } else if (std::regex_match(*field->name, std::regex("[0-9]+"))) {
-            print("\"" + *field->name + "\"");
+        if (field->name.find(":", 0) == 0) {
+            print(field->name.substr(1, field->name.length() - 1));
+        } else if (std::regex_match(field->name, std::regex("[0-9]+"))) {
+            print("\"" + field->name + "\"");
         } else {
-            print(*field->name);
+            print(field->name);
         }
         print(": ");
         enterVisit(field->type);
@@ -278,11 +278,11 @@ public:
 
     virtual void visit(TypeParam *param) {
         printt();
-        print(*param->name);
+        print(param->name);
         print(" = type_member(");
         // TODO bound (fixed|upper|lower): type
-        if (param->variance) {
-            print(":" + *param->variance);
+        if (!param->variance.empty()) {
+            print(":" + param->variance);
         }
         printn(")");
         if (param->unchecked) {
@@ -311,18 +311,18 @@ public:
     }
 
     virtual void visit(Class *decl) {
-        printScope("class", *decl->name + (decl->parent ? " < " + *decl->parent : ""), decl);
+        printScope("class", decl->name + (!decl->parent.empty() ? " < " + decl->parent : ""), decl);
     }
 
     virtual void visit(Module *decl) {
         if (decl->selfType != NULL) {
             warnUnsupported(static_cast<Node *>(decl->selfType), "Unsupported `module self type`");
         }
-        printScope("module", *decl->name, decl);
+        printScope("module", decl->name, decl);
     }
 
     virtual void visit(Interface *decl) {
-        std::string name = sanitizeInterfaceName(*decl->name);
+        std::string name = sanitizeInterfaceName(decl->name);
         printScope("module", name, decl);
     }
 
@@ -330,7 +330,7 @@ public:
 
     virtual void visit(Const *decl) {
         printt();
-        print(*decl->name + " = ");
+        print(decl->name + " = ");
         enterVisit(decl->type);
         printn();
     }
@@ -339,7 +339,7 @@ public:
 
     virtual void visit(TypeDecl *decl) {
         printt();
-        print(sanitizeAliasName(*decl->name));
+        print(sanitizeAliasName(decl->name));
         print(" = T.type_alias { ");
         enterVisit(decl->type);
         printn(" }");
@@ -350,9 +350,9 @@ public:
     virtual void visit(Alias *alias) {
         printt();
         print("alias ");
-        print(sanitizeDefName(*alias->from));
+        print(sanitizeDefName(alias->from));
         print(" ");
-        print(sanitizeDefName(*alias->to));
+        print(sanitizeDefName(alias->to));
         printn();
     }
 
@@ -363,15 +363,15 @@ public:
         print("sig { returns(");
         enterVisit(decl->type);
         printn(") }");
-        printl("attr_reader :" + *decl->name);
+        printl("attr_reader :" + decl->name);
     }
 
     virtual void visit(AttrWriter *decl) {
         printt();
-        print("sig { params(" + *decl->name + ": ");
+        print("sig { params(" + decl->name + ": ");
         enterVisit(decl->type);
         printn(").void }");
-        printl("attr_writer :" + *decl->name);
+        printl("attr_writer :" + decl->name);
     }
 
     virtual void visit(AttrAccessor *decl) {
@@ -379,7 +379,7 @@ public:
         print("sig { returns(");
         enterVisit(decl->type);
         printn(") }");
-        printl("attr_accessor :" + *decl->name);
+        printl("attr_accessor :" + decl->name);
     }
 
     void printInclude(std::string kind, Type *type) {
@@ -399,7 +399,7 @@ public:
     virtual void visit(Prepend *prepend) { printInclude("prepend", prepend->type); }
 
     virtual void visit(Visibility *decl) {
-        warnUnsupported(static_cast<Node *>(decl), "Unsupported `" + *decl->name + "`");
+        warnUnsupported(static_cast<Node *>(decl), "Unsupported `" + decl->name + "`");
     }
 
     virtual void visit(Method *decl) {
@@ -415,14 +415,14 @@ public:
         if (decl->singleton) {
             print("self."); // TODO isBoth
         }
-        print(sanitizeDefName(*decl->name));
+        print(sanitizeDefName(decl->name));
         if (!decl->types.empty()) {
             auto type = decl->types[0];
             if (!type->sig->params.empty() || type->block != NULL) {
                 print("(");
                 for (int i = 0; i < type->sig->params.size(); i++) {
-                    if (type->sig->params[i]->name) {
-                        print(sanitizeDefName(*type->sig->params[i]->name));
+                    if (!type->sig->params[i]->name.empty()) {
+                        print(sanitizeDefName(type->sig->params[i]->name));
                     } else {
                         print("arg" + std::to_string(i));
                     }
@@ -450,8 +450,8 @@ public:
     }
 
     void printParam(Param *param, int count) {
-        if (param->name) {
-            print(sanitizeDefName(*param->name));
+        if (!param->name.empty()) {
+            print(sanitizeDefName(param->name));
         } else {
             print("arg" + std::to_string(count));
         }
@@ -471,8 +471,8 @@ public:
         if (!type->typeParams.empty()) {
             print("type_parameters(");
             for (int i = 0; i < type->typeParams.size(); i++) {
-                typeNames.insert(*type->typeParams[i]->name);
-                print(":" + *type->typeParams[i]->name);
+                typeNames.insert(type->typeParams[i]->name);
+                print(":" + type->typeParams[i]->name);
                 if (i < type->typeParams.size() - 1) {
                     print(", ");
                 }

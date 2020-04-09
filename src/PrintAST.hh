@@ -51,9 +51,9 @@ public:
 
     void printAttr(Attr *decl, std::string kind) {
         printLoc(decl);
-        print(kind + ": " + *decl->name);
-        if (decl->ivar) {
-            print(" (" + *decl->ivar + ")");
+        print(kind + ": " + decl->name);
+        if (!decl->ivar.empty()) {
+            print(" (" + decl->ivar + ")");
         }
         print(": ");
         enterVisit(decl->type);
@@ -72,9 +72,9 @@ public:
 
     virtual void visit(TypeVoid *type) { print("void"); }
 
-    virtual void visit(TypeSimple *type) { print(*type->name); }
+    virtual void visit(TypeSimple *type) { print(type->name); }
 
-    virtual void visit(TypeSingleton *type) { print("singleton(" + *type->name + ")"); }
+    virtual void visit(TypeSingleton *type) { print("singleton(" + type->name + ")"); }
 
     virtual void visit(TypeNilable *type) {
         enterVisit(type->type);
@@ -101,16 +101,16 @@ public:
 
     virtual void visit(TypeInstance *type) { print("instance"); }
 
-    virtual void visit(TypeInteger *type) { print(*type->integer); }
+    virtual void visit(TypeInteger *type) { print(type->integer); }
 
-    virtual void visit(TypeString *type) { print(*type->str); }
+    virtual void visit(TypeString *type) { print(type->str); }
 
-    virtual void visit(TypeSymbol *type) { print(*type->symbol); }
+    virtual void visit(TypeSymbol *type) { print(type->symbol); }
 
     virtual void visit(TypeTop *type) { print("top"); }
 
     virtual void visit(TypeGeneric *type) {
-        print(*type->name);
+        print(type->name);
         printTypes(type->types, "[", ", ", "]");
     }
 
@@ -133,7 +133,7 @@ public:
 
     virtual void visit(RecordField *field) {
         printLoc(field);
-        print(*field->name);
+        print(field->name);
         print(" => ");
         enterVisit(field->type);
         if (!dynamic_cast<Record *>(field->type)) {
@@ -153,21 +153,21 @@ public:
     // Decl
 
     virtual void visit(TypeParam *param) {
-        if (param->variance) {
-            print(*param->variance + " ");
+        if (!param->variance.empty()) {
+            print(param->variance + " ");
         }
         if (param->unchecked) {
             print("unchecked ");
         }
-        print(*param->name);
+        print(param->name);
     }
 
     virtual void visit(Class *decl) {
         printLoc(decl);
-        print("class " + *decl->name);
+        print("class " + decl->name);
         printTypeParams(decl->typeParams);
-        if (decl->parent) {
-            print(" < " + *decl->parent);
+        if (!decl->parent.empty()) {
+            print(" < " + decl->parent);
         }
         printn();
         indent();
@@ -179,7 +179,7 @@ public:
 
     virtual void visit(Module *decl) {
         printLoc(decl);
-        print("module " + *decl->name);
+        print("module " + decl->name);
         printTypeParams(decl->typeParams);
         if (decl->selfType != NULL) {
             print(": ");
@@ -195,7 +195,7 @@ public:
 
     virtual void visit(Interface *decl) {
         printLoc(decl);
-        print("interface " + *decl->name);
+        print("interface " + decl->name);
         printTypeParams(decl->typeParams);
         printn();
         indent();
@@ -207,7 +207,7 @@ public:
 
     virtual void visit(Extension *decl) {
         printLoc(decl);
-        print("extension (" + *decl->extensionName + ") " + *decl->name);
+        print("extension (" + decl->extensionName + ") " + decl->name);
         printTypeParams(decl->typeParams);
         printn();
         indent();
@@ -219,21 +219,21 @@ public:
 
     virtual void visit(Const *decl) {
         printLoc(decl);
-        print("const: " + *decl->name + " = ");
+        print("const: " + decl->name + " = ");
         enterVisit(decl->type);
         printn();
     }
 
     virtual void visit(Global *decl) {
         printLoc(decl);
-        print("global: " + *decl->name + " = ");
+        print("global: " + decl->name + " = ");
         enterVisit(decl->type);
         printn();
     }
 
     virtual void visit(TypeDecl *decl) {
         printLoc(decl);
-        print("type: " + *decl->name + " = ");
+        print("type: " + decl->name + " = ");
         if (Block *d = dynamic_cast<Block *>(decl->type)) {
             print("block");
             printn();
@@ -257,9 +257,9 @@ public:
     virtual void visit(Alias *decl) {
         printLoc(decl);
         if (decl->singleton) {
-            printn("alias: self." + *decl->from + " self." + *decl->to);
+            printn("alias: self." + decl->from + " self." + decl->to);
         } else {
-            printn("alias: " + *decl->from + " " + *decl->to);
+            printn("alias: " + decl->from + " " + decl->to);
         }
     }
 
@@ -286,7 +286,7 @@ public:
 
     virtual void visit(Visibility *decl) {
         printLoc(decl);
-        printn(*decl->name);
+        printn(decl->name);
     }
 
     virtual void visit(Method *decl) {
@@ -302,7 +302,7 @@ public:
             }
             print(".");
         }
-        printn(*decl->name);
+        printn(decl->name);
         indent();
         for (int i = 0; i < decl->types.size(); i++) {
             enterVisit(decl->types[i]);
@@ -341,8 +341,8 @@ public:
             print("*");
         }
         enterVisit(param->type);
-        if (param->name) {
-            print(" " + *param->name);
+        if (!param->name.empty()) {
+            print(" " + param->name);
         }
         printn();
     }

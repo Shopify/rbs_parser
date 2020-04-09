@@ -152,20 +152,20 @@
 
   type_decl
     : kTYPE qualified_name kEQ type
-    { driver.file->decls.push_back(new TypeDecl(driver.loc(@1, @4), $2.string, static_cast<Type*>($4.node))); }
+    { driver.file->decls.push_back(new TypeDecl(driver.loc(@1, @4), *$2.string, static_cast<Type*>($4.node))); }
 
   // Consts
 
   const_decl
     : class_name kCOLON type
-    { driver.file->decls.push_back(new Const(driver.loc(@1, @3), $1.string, static_cast<Type*>($3.node))); }
+    { driver.file->decls.push_back(new Const(driver.loc(@1, @3), *$1.string, static_cast<Type*>($3.node))); }
     | namespace tUKEYWORD type
     {
       $2.string->pop_back();
       driver.file->decls.push_back(
         new Const(
           driver.loc(@1, @3),
-          new std::string(*$1.string + *$2.string),
+          *$1.string + *$2.string,
           static_cast<Type*>($3.node)));
     }
 
@@ -173,7 +173,7 @@
 
   global_decl
     : tGLOBALIDENT kCOLON type
-    { driver.file->decls.push_back(new Global(driver.loc(@1, @3), $1.string, static_cast<Type*>($3.node))); }
+    { driver.file->decls.push_back(new Global(driver.loc(@1, @3), *$1.string, static_cast<Type*>($3.node))); }
 
   // Extensions
 
@@ -181,7 +181,7 @@
     : kEXTENSION class_name module_type_params kLPAREN extension_name kRPAREN class_members kEND
     // TODO should be type params?
     {
-      Extension* decl = new Extension(driver.loc(@1, @8), $2.string, $5.string);
+      Extension* decl = new Extension(driver.loc(@1, @8), *$2.string, *$5.string);
       for (auto &node : $3.list->nodes) {
         decl->typeParams.emplace_back(static_cast<TypeParam*>(node));
       }
@@ -200,7 +200,7 @@
   module_decl
     : kMODULE class_name module_type_params module_self_type class_members kEND
     {
-      Module* decl = new Module(driver.loc(@1, @6), $2.string);
+      Module* decl = new Module(driver.loc(@1, @6), *$2.string);
       for (auto &node : $3.list->nodes) {
         decl->typeParams.emplace_back(static_cast<TypeParam*>(node));
       }
@@ -215,7 +215,7 @@
     | kMODULE namespace tUKEYWORD type class_members kEND
     {
       $3.string->pop_back();
-      Module* decl = new Module(driver.loc(@1, @6), new std::string(*$2.string + *$3.string));
+      Module* decl = new Module(driver.loc(@1, @6), *$2.string + *$3.string);
       decl->selfType = static_cast<Type*>($4.node);
       for (auto &node : $5.list->nodes) {
         decl->members.emplace_back(static_cast<Member*>(node));
@@ -234,7 +234,7 @@
   interface_decl
     : kINTERFACE interface_name module_type_params class_members kEND
     {
-      Interface* decl = new Interface(driver.loc(@1, @5), $2.string);
+      Interface* decl = new Interface(driver.loc(@1, @5), *$2.string);
       for (auto &node : $3.list->nodes) {
         decl->typeParams.emplace_back(static_cast<TypeParam*>(node));
       }
@@ -253,7 +253,7 @@
   class_decl
     : kCLASS class_name module_type_params super_class class_members kEND
     {
-      Class* decl = new Class(driver.loc(@1, @6), $2.string, $4.string);
+      Class* decl = new Class(driver.loc(@1, @6), *$2.string, *$4.string);
       for (auto &node : $3.list->nodes) {
         decl->typeParams.emplace_back(static_cast<TypeParam*>(node));
       }
@@ -265,7 +265,7 @@
 
   super_class
     : %empty
-    { $$.string = NULL; }
+    { $$.string = new std::string(); }
     | kLT class_name
     { $$.string = $2.string; }
     | kLT class_name kLBRACKET type_list kRBRACKET
@@ -291,17 +291,17 @@
 
   module_type_param
     : type_param_check type_param_variance tUIDENT
-    { $$.node = new TypeParam(driver.loc(@1, @3), $3.string, $2.string, $1.string != NULL); }
+    { $$.node = new TypeParam(driver.loc(@1, @3), *$3.string, *$2.string, !$1.string->empty()); }
 
   type_param_variance
     : %empty
-    { $$.string = NULL; }
+    { $$.string = new std::string(); }
     | kOUT
     | kIN
 
   type_param_check
     : %empty
-    { $$.string = NULL; }
+    { $$.string = new std::string(); }
     | kUNCHECKED
 
   // Class members
@@ -319,30 +319,30 @@
     | extend_member
     | prepend_member
     | kPUBLIC
-    { $$.node = new Visibility(driver.loc(@1, @1), $1.string); }
+    { $$.node = new Visibility(driver.loc(@1, @1), *$1.string); }
     | kPRIVATE
-    { $$.node = new Visibility(driver.loc(@1, @1), $1.string); }
+    { $$.node = new Visibility(driver.loc(@1, @1), *$1.string); }
     | method_member
 
   alias_member
     : kALIAS method_name method_name
-    { $$.node = new Alias(driver.loc(@1, @3), $2.string, $3.string, false); }
+    { $$.node = new Alias(driver.loc(@1, @3), *$2.string, *$3.string, false); }
     | kALIAS kSELF kDOT method_name kSELF kDOT method_name
-    { $$.node = new Alias(driver.loc(@1, @7), $4.string, $7.string, true); }
+    { $$.node = new Alias(driver.loc(@1, @7), *$4.string, *$7.string, true); }
 
   attribute_member
     : kATTRREADER keyword type
-    { $$.node = new AttrReader(driver.loc(@1, @3), $2.string, NULL, static_cast<Type*>($3.node)); }
+    { $$.node = new AttrReader(driver.loc(@1, @3), *$2.string, "", static_cast<Type*>($3.node)); }
     | kATTRREADER method_name attr_var_opt kCOLON type
-    { $$.node = new AttrReader(driver.loc(@1, @5), $2.string, $3.string, static_cast<Type*>($5.node)); }
+    { $$.node = new AttrReader(driver.loc(@1, @5), *$2.string, *$3.string, static_cast<Type*>($5.node)); }
     | kATTRWRITER keyword type
-    { $$.node = new AttrWriter(driver.loc(@1, @3), $2.string, NULL, static_cast<Type*>($3.node)); }
+    { $$.node = new AttrWriter(driver.loc(@1, @3), *$2.string, "", static_cast<Type*>($3.node)); }
     | kATTRWRITER method_name attr_var_opt kCOLON type
-    { $$.node = new AttrWriter(driver.loc(@1, @5), $2.string, $3.string, static_cast<Type*>($5.node)); }
+    { $$.node = new AttrWriter(driver.loc(@1, @5), *$2.string, *$3.string, static_cast<Type*>($5.node)); }
     | kATTRACCESSOR keyword type
-    { $$.node = new AttrAccessor(driver.loc(@1, @3), $2.string, NULL, static_cast<Type*>($3.node)); }
+    { $$.node = new AttrAccessor(driver.loc(@1, @3), *$2.string, "", static_cast<Type*>($3.node)); }
     | kATTRACCESSOR method_name attr_var_opt kCOLON type
-    { $$.node = new AttrAccessor(driver.loc(@1, @5), $2.string, $3.string, static_cast<Type*>($5.node)); }
+    { $$.node = new AttrAccessor(driver.loc(@1, @5), *$2.string, *$3.string, static_cast<Type*>($5.node)); }
 
   attr_var_opt
     : kLPAREN kRPAREN
@@ -352,10 +352,10 @@
 
   include_member
     : kINCLUDE qualified_name
-    { $$.node = new Include(driver.loc(@1, @2), new TypeSimple(driver.loc(@2, @2), $2.string)); }
+    { $$.node = new Include(driver.loc(@1, @2), new TypeSimple(driver.loc(@2, @2), *$2.string)); }
     | kINCLUDE qualified_name kLBRACKET type_list kRBRACKET
     {
-      TypeGeneric* type = new TypeGeneric(driver.loc(@2, @5), $2.string);
+      TypeGeneric* type = new TypeGeneric(driver.loc(@2, @5), *$2.string);
       for (auto &ptype : $4.list->nodes) {
         type->types.emplace_back(static_cast<Type*>(ptype));
       }
@@ -364,10 +364,10 @@
 
   extend_member
     : kEXTEND qualified_name
-    { $$.node = new Extend(driver.loc(@1, @2), new TypeSimple(driver.loc(@2, @2), $2.string)); }
+    { $$.node = new Extend(driver.loc(@1, @2), new TypeSimple(driver.loc(@2, @2), *$2.string)); }
     | kEXTEND qualified_name kLBRACKET type_list kRBRACKET
     {
-      TypeGeneric* type = new TypeGeneric(driver.loc(@2, @5), $2.string);
+      TypeGeneric* type = new TypeGeneric(driver.loc(@2, @5), *$2.string);
       for (auto &ptype : $4.list->nodes) {
         type->types.emplace_back(static_cast<Type*>(ptype));
       }
@@ -376,10 +376,10 @@
 
   prepend_member
     : kPREPEND qualified_name
-    { $$.node = new Prepend(driver.loc(@1, @2), new TypeSimple(driver.loc(@2, @2), $2.string)); }
+    { $$.node = new Prepend(driver.loc(@1, @2), new TypeSimple(driver.loc(@2, @2), *$2.string)); }
     | kPREPEND qualified_name kLBRACKET type_list kRBRACKET
     {
-      TypeGeneric* type = new TypeGeneric(driver.loc(@2, @5), $2.string);
+      TypeGeneric* type = new TypeGeneric(driver.loc(@2, @5), *$2.string);
       for (auto &ptype : $4.list->nodes) {
         type->types.emplace_back(static_cast<Type*>(ptype));
       }
@@ -391,10 +391,10 @@
   method_member
     : attributes kDEF method_kind def_name method_types
     {
-      auto instance = $3.string == NULL || $3.string->compare("self?") == 0;
-      auto singleton = $3.string != NULL;
-      auto incompatible = $1.string != NULL;
-      Method* decl = new Method(driver.loc(@2, @5), $4.string, instance, singleton, incompatible);
+      auto instance = $3.string->empty() || $3.string->compare("self?") == 0;
+      auto singleton = !$3.string->empty();
+      auto incompatible = !$1.string->empty();
+      Method* decl = new Method(driver.loc(@2, @5), *$4.string, instance, singleton, incompatible);
       for (auto &node : $5.list->nodes) {
         decl->types.emplace_back(static_cast<MethodType*>(node));
       }
@@ -403,7 +403,7 @@
 
   attributes
     : %empty
-    { $$.string = NULL; }
+    { $$.string = new std::string(); }
     | kINCOMPATIBLE
 
   def_name
@@ -412,7 +412,7 @@
 
   method_kind
     : %empty
-    { $$.string = NULL; }
+    { $$.string = new std::string(); }
     | kSELF kDOT
     | kSELFQ kDOT
 
@@ -474,9 +474,9 @@
 
   type_params0
     : tUIDENT
-    { $$.list = driver.list(new TypeParam(driver.loc(@1, @1), $1.string, NULL, false)); }
+    { $$.list = driver.list(new TypeParam(driver.loc(@1, @1), *$1.string, "", false)); }
     | type_params0 kCOMMA tUIDENT
-    { $$.list = driver.merge($1.list, new TypeParam(driver.loc(@3, @3), $3.string, NULL, false)); }
+    { $$.list = driver.merge($1.list, new TypeParam(driver.loc(@3, @3), *$3.string, "", false)); }
 
   params_opt
     : %empty
@@ -519,7 +519,7 @@
 
   required_positional
     : type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @2), $2.string, static_cast<Type*>($1.node), false, false, false); }
+    { $$.node = new Param(driver.loc(@1, @2), *$2.string, static_cast<Type*>($1.node), false, false, false); }
 
   optional_positionals
     : optional_positional kCOMMA optional_positionals
@@ -530,7 +530,7 @@
 
   optional_positional
     : kQUESTION type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), $3.string, static_cast<Type*>($2.node), false, true, false); }
+    { $$.node = new Param(driver.loc(@1, @3), *$3.string, static_cast<Type*>($2.node), false, true, false); }
 
   rest_positionals
     : rest_positional kCOMMA rest_positionals
@@ -541,7 +541,7 @@
 
   rest_positional
     : kSTAR type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), $3.string, static_cast<Type*>($2.node), false, false, true); }
+    { $$.node = new Param(driver.loc(@1, @3), *$3.string, static_cast<Type*>($2.node), false, false, true); }
 
   keywords
     : %empty
@@ -559,19 +559,19 @@
 
   required_keyword
     : keyword_name type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @2), $1.string, static_cast<Type*>($2.node), true, false, false); }
+    { $$.node = new Param(driver.loc(@1, @2), *$1.string, static_cast<Type*>($2.node), true, false, false); }
 
   optional_keyword
     : kQUESTION keyword_name type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), $2.string, static_cast<Type*>($3.node), true, false, false); }
+    { $$.node = new Param(driver.loc(@1, @3), *$2.string, static_cast<Type*>($3.node), true, false, false); }
 
   rest_keyword
     : kSTAR2 type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), $3.string, static_cast<Type*>($2.node), false, false, true); }
+    { $$.node = new Param(driver.loc(@1, @3), *$3.string, static_cast<Type*>($2.node), false, false, true); }
 
   var_name_opt
     : %empty
-    { $$.string = NULL; }
+    { $$.string = new std::string(); }
     | tLIDENT
     | tINTERFACEIDENT
     | tQUOTEDMETHOD
@@ -635,7 +635,7 @@
     | kUNTYPED
     { $$.node = new TypeUntyped(driver.loc(@1, @1)); }
     | tSTRING
-    { $$.node = new TypeString(driver.loc(@1, @1), $1.string); }
+    { $$.node = new TypeString(driver.loc(@1, @1), *$1.string); }
     | kTOP
     { $$.node = new TypeTop(driver.loc(@1, @1)); }
     | kBOT
@@ -647,14 +647,14 @@
     | kCLASS
     { $$.node = new TypeClass(driver.loc(@1, @1)); }
     | tINTEGER
-    { $$.node = new TypeInteger(driver.loc(@1, @1), $1.string); }
+    { $$.node = new TypeInteger(driver.loc(@1, @1), *$1.string); }
     | tSYMBOL
-    { $$.node = new TypeSymbol(driver.loc(@1, @1), $1.string); }
+    { $$.node = new TypeSymbol(driver.loc(@1, @1), *$1.string); }
     | qualified_name
-    { $$.node = new TypeSimple(driver.loc(@1, @1), $1.string); }
+    { $$.node = new TypeSimple(driver.loc(@1, @1), *$1.string); }
     | qualified_name kLBRACKET type_list kRBRACKET
     {
-      TypeGeneric* type = new TypeGeneric(driver.loc(@1, @4), $1.string);
+      TypeGeneric* type = new TypeGeneric(driver.loc(@1, @4), *$1.string);
       for (auto &ptype : $3.list->nodes) {
         type->types.emplace_back(static_cast<Type*>(ptype));
       }
@@ -673,7 +673,7 @@
     | kLPAREN type kRPAREN
     { $$ = $2; }
     | kSINGLETON kLPAREN class_name kRPAREN
-    { $$.node = new TypeSingleton(driver.loc(@1, @4), $3.string); }
+    { $$.node = new TypeSingleton(driver.loc(@1, @4), *$3.string); }
     | simple_type kQUESTION
     { $$.node = new TypeNilable(driver.loc(@1, @2), static_cast<Type*>($1.node)); }
     | kHAT proc_type
@@ -718,13 +718,13 @@
 
   record_field
     : tSYMBOL kFATARROW type
-    { $$.node = new RecordField(driver.loc(@1, @3), $1.string, static_cast<Type*>($3.node)); }
+    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, static_cast<Type*>($3.node)); }
     | tSTRING kFATARROW type
-    { $$.node = new RecordField(driver.loc(@1, @3), $1.string, static_cast<Type*>($3.node)); }
+    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, static_cast<Type*>($3.node)); }
     | tINTEGER kFATARROW type
-    { $$.node = new RecordField(driver.loc(@1, @3), $1.string, static_cast<Type*>($3.node)); }
+    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, static_cast<Type*>($3.node)); }
     | keyword type
-    { $$.node = new RecordField(driver.loc(@1, @2), $1.string, static_cast<Type*>($2.node)); }
+    { $$.node = new RecordField(driver.loc(@1, @2), *$1.string, static_cast<Type*>($2.node)); }
 
   // Names
 

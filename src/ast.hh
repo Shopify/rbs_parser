@@ -3,6 +3,7 @@
 
 #include "classes.hh"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -162,13 +163,12 @@ public:
 
 class TypeGeneric : public Type {
 public:
-    string *name;
+    string name;
     vector<Type *> types;
 
-    TypeGeneric(Loc loc, string *name) : Type(loc), name(name) {}
+    TypeGeneric(Loc loc, string name) : Type(loc), name(name) {}
 
     virtual ~TypeGeneric() {
-        delete name;
         for (auto type : types) {
             delete type;
         }
@@ -186,10 +186,10 @@ public:
 
 class TypeInteger : public Type {
 public:
-    string *integer;
+    string integer;
 
-    TypeInteger(Loc loc, string *integer) : Type(loc), integer(integer){};
-    virtual ~TypeInteger() { delete integer; }
+    TypeInteger(Loc loc, string integer) : Type(loc), integer(integer){};
+    virtual ~TypeInteger() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -226,19 +226,16 @@ public:
 
 class Param : public Node {
 public:
-    string *name;
+    string name;
     Type *type;
     bool keyword = false;
     bool optional = false;
     bool vararg = false;
 
-    Param(Loc loc, string *name, Type *type, bool keyword, bool optional, bool vararg)
+    Param(Loc loc, string name, Type *type, bool keyword, bool optional, bool vararg)
         : Node(loc), name(name), type(type), keyword(keyword), optional(optional), vararg(vararg) {}
 
-    virtual ~Param() {
-        delete name;
-        delete type;
-    }
+    virtual ~Param() { delete type; }
 
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
@@ -278,34 +275,34 @@ public:
 
 class TypeSimple : public Type {
 public:
-    string *name;
-    TypeSimple(Loc loc, string *name) : Type(loc), name(name){};
-    virtual ~TypeSimple() { delete name; }
+    string name;
+    TypeSimple(Loc loc, string name) : Type(loc), name(name){};
+    virtual ~TypeSimple() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeSingleton : public TypeSimple {
 public:
-    TypeSingleton(Loc loc, string *name) : TypeSimple(loc, name) {}
+    TypeSingleton(Loc loc, string name) : TypeSimple(loc, name) {}
     virtual ~TypeSingleton() {}
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeString : public Type {
 public:
-    string *str;
+    string str;
 
-    TypeString(Loc loc, string *str) : Type(loc), str(str){};
-    virtual ~TypeString() { delete str; }
+    TypeString(Loc loc, string str) : Type(loc), str(str){};
+    virtual ~TypeString() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeSymbol : public Type {
 public:
-    string *symbol;
+    string symbol;
 
-    TypeSymbol(Loc loc, string *symbol) : Type(loc), symbol(symbol){};
-    virtual ~TypeSymbol() { delete symbol; }
+    TypeSymbol(Loc loc, string symbol) : Type(loc), symbol(symbol){};
+    virtual ~TypeSymbol() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -372,15 +369,12 @@ public:
 
 class RecordField : public Node {
 public:
-    string *name;
+    string name;
     Type *type;
 
-    RecordField(Loc loc, string *name, Type *type) : Node(loc), name(name), type(type){};
+    RecordField(Loc loc, string name, Type *type) : Node(loc), name(name), type(type){};
 
-    virtual ~RecordField() {
-        delete name;
-        delete type;
-    }
+    virtual ~RecordField() { delete type; }
 
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
@@ -404,17 +398,13 @@ public:
 
 class TypeParam : public Node {
 public:
-    string *name;
-    string *variance;
+    string name;
+    string variance;
     bool unchecked;
 
-    TypeParam(Loc loc, string *name, string *variance, bool unchecked)
+    TypeParam(Loc loc, string name, string variance, bool unchecked)
         : Node(loc), name(name), variance(variance), unchecked(unchecked){};
-
-    virtual ~TypeParam() {
-        delete name;
-        delete variance;
-    }
+    virtual ~TypeParam() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -434,14 +424,13 @@ public:
 
 class Scope : public Decl {
 public:
-    string *name;
+    string name;
     vector<TypeParam *> typeParams;
     vector<Member *> members;
 
-    Scope(Loc loc, string *name) : Decl(loc), name(name){};
+    Scope(Loc loc, string name) : Decl(loc), name(name){};
 
     virtual ~Scope() {
-        delete name;
         for (auto type : typeParams) {
             delete type;
         }
@@ -453,52 +442,45 @@ public:
 
 class Class : public Scope {
 public:
-    string *parent; // Should be a type
+    string parent; // Should be a type
 
-    Class(Loc loc, string *name, string *parent) : Scope(loc, name), parent(parent) {}
-    virtual ~Class() { delete parent; }
+    Class(Loc loc, string name, string parent) : Scope(loc, name), parent(parent) {}
+    virtual ~Class() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Const : public Decl {
 public:
-    string *name;
+    string name;
     Type *type;
 
-    Const(Loc loc, string *name, Type *type) : Decl(loc), name(name), type(type){};
-    virtual ~Const() {
-        delete name;
-        delete type;
-    }
+    Const(Loc loc, string name, Type *type) : Decl(loc), name(name), type(type){};
+    virtual ~Const() { delete type; }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Extension : public Scope {
 public:
-    string *extensionName;
+    string extensionName;
 
-    Extension(Loc loc, string *name, string *extensionName) : Scope(loc, name), extensionName(extensionName){};
-
-    virtual ~Extension() { delete extensionName; }
+    Extension(Loc loc, string name, string extensionName) : Scope(loc, name), extensionName(extensionName){};
+    virtual ~Extension() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Global : public Decl {
 public:
-    string *name;
+    string name;
     Type *type;
 
-    Global(Loc loc, string *name, Type *type) : Decl(loc), name(name), type(type){};
-    virtual ~Global() {
-        delete name;
-        delete type;
-    }
+    Global(Loc loc, string name, Type *type) : Decl(loc), name(name), type(type){};
+    virtual ~Global() { delete type; }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Interface : public Scope {
 public:
-    Interface(Loc loc, string *name) : Scope(loc, name){};
+    Interface(Loc loc, string name) : Scope(loc, name){};
     virtual ~Interface() {}
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
@@ -506,21 +488,18 @@ public:
 class Module : public Scope {
 public:
     Type *selfType;
-    Module(Loc loc, string *name) : Scope(loc, name), selfType(NULL){};
+    Module(Loc loc, string name) : Scope(loc, name), selfType(NULL){};
     virtual ~Module() { delete selfType; }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeDecl : public Decl {
 public:
-    string *name;
+    string name;
     Type *type;
 
-    TypeDecl(Loc loc, string *name, Type *type) : Decl(loc), name(name), type(type){};
-    virtual ~TypeDecl() {
-        delete name;
-        delete type;
-    }
+    TypeDecl(Loc loc, string name, Type *type) : Decl(loc), name(name), type(type){};
+    virtual ~TypeDecl() { delete type; }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -528,35 +507,28 @@ public:
 
 class Alias : public Member {
 public:
-    string *from;
-    string *to;
+    string from;
+    string to;
     bool singleton;
 
-    Alias(Loc loc, string *from, string *to, bool singleton) : Member(loc), from(from), to(to), singleton(singleton){};
-
-    virtual ~Alias() {
-        delete from;
-        delete to;
-    }
+    Alias(Loc loc, string from, string to, bool singleton) : Member(loc), from(from), to(to), singleton(singleton){};
+    virtual ~Alias() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Attr : public Member {
 public:
-    string *name;
-    string *ivar;
+    string name;
+    string ivar;
     Type *type;
 
-    Attr(Loc loc, string *name, string *ivar, Type *type) : Member(loc), name(name), ivar(ivar), type(type){};
-    virtual ~Attr() {
-        delete name;
-        delete ivar;
-    }
+    Attr(Loc loc, string name, string ivar, Type *type) : Member(loc), name(name), ivar(ivar), type(type){};
+    virtual ~Attr() = default;
 };
 
 class AttrAccessor : public Attr {
 public:
-    AttrAccessor(Loc loc, string *name, string *ivar, Type *type) : Attr(loc, name, ivar, type){};
+    AttrAccessor(Loc loc, string name, string ivar, Type *type) : Attr(loc, name, ivar, type){};
 
     virtual ~AttrAccessor() {}
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
@@ -564,7 +536,7 @@ public:
 
 class AttrReader : public Attr {
 public:
-    AttrReader(Loc loc, string *name, string *ivar, Type *type) : Attr(loc, name, ivar, type){};
+    AttrReader(Loc loc, string name, string ivar, Type *type) : Attr(loc, name, ivar, type){};
 
     virtual ~AttrReader() {}
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
@@ -572,7 +544,7 @@ public:
 
 class AttrWriter : public Attr {
 public:
-    AttrWriter(Loc loc, string *name, string *ivar, Type *type) : Attr(loc, name, ivar, type){};
+    AttrWriter(Loc loc, string name, string ivar, Type *type) : Attr(loc, name, ivar, type){};
 
     virtual ~AttrWriter() {}
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
@@ -629,17 +601,16 @@ public:
 
 class Method : public Member {
 public:
-    string *name;
+    string name;
     vector<MethodType *> types;
     bool instance;
     bool singleton;
     bool incompatible;
 
-    Method(Loc loc, string *name, bool instance, bool singleton, bool incompatible)
+    Method(Loc loc, string name, bool instance, bool singleton, bool incompatible)
         : Member(loc), name(name), instance(instance), singleton(singleton), incompatible(incompatible){};
 
     virtual ~Method() {
-        delete name;
         for (auto type : types) {
             delete type;
         }
@@ -659,10 +630,10 @@ public:
 
 class Visibility : public Member {
 public:
-    string *name;
+    string name;
 
-    Visibility(Loc loc, string *name) : Member(loc), name(name) {}
-    virtual ~Visibility() { delete name; }
+    Visibility(Loc loc, string name) : Member(loc), name(name) {}
+    virtual ~Visibility() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 } // namespace rbs_parser
