@@ -292,10 +292,10 @@ public:
 
 class TypeString : public Type {
 public:
-    std::string *string;
+    std::string *str;
 
-    TypeString(Loc loc, std::string *string) : Type(loc), string(string){};
-    virtual ~TypeString() { delete string; }
+    TypeString(Loc loc, std::string *str) : Type(loc), str(str){};
+    virtual ~TypeString() { delete str; }
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 

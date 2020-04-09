@@ -103,7 +103,7 @@ public:
 
     virtual void visit(TypeInteger *type) { print(*type->integer); }
 
-    virtual void visit(TypeString *type) { print(*type->string); }
+    virtual void visit(TypeString *type) { print(*type->str); }
 
     virtual void visit(TypeSymbol *type) { print(*type->symbol); }
 
