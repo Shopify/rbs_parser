@@ -123,64 +123,58 @@ public:
 class Type : public Node {
 public:
     Type(Loc loc) : Node(loc){};
-    virtual ~Type() {}
+    virtual ~Type() = default;
 };
 
 class TypeAny : public Type {
 public:
     TypeAny(Loc loc) : Type(loc) {}
-    virtual ~TypeAny() {}
+    virtual ~TypeAny() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeBool : public Type {
 public:
     TypeBool(Loc loc) : Type(loc) {}
-    virtual ~TypeBool() {}
+    virtual ~TypeBool() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeBot : public Type {
 public:
     TypeBot(Loc loc) : Type(loc) {}
-    virtual ~TypeBot() {}
+    virtual ~TypeBot() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeClass : public Type {
 public:
     TypeClass(Loc loc) : Type(loc) {}
-    virtual ~TypeClass() {}
+    virtual ~TypeClass() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeFalse : public Type {
 public:
     TypeFalse(Loc loc) : Type(loc) {}
-    virtual ~TypeFalse() {}
+    virtual ~TypeFalse() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeGeneric : public Type {
 public:
     string name;
-    vector<Type *> types;
+    vector<unique_ptr<Type>> types;
 
     TypeGeneric(Loc loc, string name) : Type(loc), name(name) {}
-
-    virtual ~TypeGeneric() {
-        for (auto type : types) {
-            delete type;
-        }
-    }
-
+    virtual ~TypeGeneric() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeInstance : public Type {
 public:
     TypeInstance(Loc loc) : Type(loc) {}
-    virtual ~TypeInstance() {}
+    virtual ~TypeInstance() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -188,95 +182,82 @@ class TypeInteger : public Type {
 public:
     string integer;
 
-    TypeInteger(Loc loc, string integer) : Type(loc), integer(integer){};
+    TypeInteger(Loc loc, string integer) : Type(loc), integer(integer) {};
     virtual ~TypeInteger() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeIntersection : public Type {
 public:
-    vector<Type *> types;
+    vector<unique_ptr<Type>> types;
 
-    TypeIntersection(Loc loc) : Type(loc){};
-    TypeIntersection(Loc loc, vector<Type *> types) : Type(loc), types(types){};
-
-    virtual ~TypeIntersection() {
-        for (auto type : types) {
-            delete type;
-        }
-    }
-
+    TypeIntersection(Loc loc) : Type(loc) {};
+    TypeIntersection(Loc loc, vector<unique_ptr<Type>> types) : Type(loc), types(move(types)) {};
+    virtual ~TypeIntersection() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeNil : public Type {
 public:
     TypeNil(Loc loc) : Type(loc) {}
-    virtual ~TypeNil() {}
+    virtual ~TypeNil() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeNilable : public Type {
 public:
-    Type *type;
-    TypeNilable(Loc loc, Type *type) : Type(loc), type(type) {}
-    virtual ~TypeNilable() { delete type; }
+    unique_ptr<Type> type;
+
+    TypeNilable(Loc loc, unique_ptr<Type> type) : Type(loc), type(move(type)) {}
+    virtual ~TypeNilable() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Param : public Node {
 public:
     string name;
-    Type *type;
+    unique_ptr<Type> type;
     bool keyword = false;
     bool optional = false;
     bool vararg = false;
 
-    Param(Loc loc, string name, Type *type, bool keyword, bool optional, bool vararg)
-        : Node(loc), name(name), type(type), keyword(keyword), optional(optional), vararg(vararg) {}
-
-    virtual ~Param() { delete type; }
-
+    Param(Loc loc, string name, unique_ptr<Type> type, bool keyword, bool optional, bool vararg)
+        : Node(loc), name(name), type(move(type)), keyword(keyword), optional(optional), vararg(vararg) {}
+    virtual ~Param() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeProc : public Type {
 public:
-    vector<Param *> params;
-    Type *ret;
+    vector<unique_ptr<Param>> params;
+    unique_ptr<Type> ret;
 
     TypeProc(Loc loc) : Type(loc){};
-    TypeProc(Loc loc, Type *ret) : Type(loc), ret(ret){};
-    TypeProc(Loc loc, vector<Param *> params, Type *ret) : Type(loc), params(params), ret(ret) {}
-
-    virtual ~TypeProc() {
-        for (auto param : params) {
-            delete param;
-        }
-        delete ret;
-    }
-
+    TypeProc(Loc loc, unique_ptr<Type> ret) : Type(loc), ret(move(ret)){};
+    TypeProc(Loc loc, vector<unique_ptr<Param>> params, unique_ptr<Type> ret) : Type(loc), params(move(params)), ret(move(ret)) {}
+    virtual ~TypeProc() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeSelf : public Type {
 public:
     TypeSelf(Loc loc) : Type(loc) {}
-    virtual ~TypeSelf() {}
+    virtual ~TypeSelf() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeSelfQ : public Type {
 public:
     TypeSelfQ(Loc loc) : Type(loc) {}
-    virtual ~TypeSelfQ() {}
+    virtual ~TypeSelfQ() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeSimple : public Type {
 public:
     string name;
-    TypeSimple(Loc loc, string name) : Type(loc), name(name){};
+
+    TypeSimple(Loc loc, string name) : Type(loc), name(name) {};
     virtual ~TypeSimple() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
@@ -284,7 +265,7 @@ public:
 class TypeSingleton : public TypeSimple {
 public:
     TypeSingleton(Loc loc, string name) : TypeSimple(loc, name) {}
-    virtual ~TypeSingleton() {}
+    virtual ~TypeSingleton() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -292,7 +273,7 @@ class TypeString : public Type {
 public:
     string str;
 
-    TypeString(Loc loc, string str) : Type(loc), str(str){};
+    TypeString(Loc loc, string str) : Type(loc), str(str) {};
     virtual ~TypeString() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
@@ -301,7 +282,7 @@ class TypeSymbol : public Type {
 public:
     string symbol;
 
-    TypeSymbol(Loc loc, string symbol) : Type(loc), symbol(symbol){};
+    TypeSymbol(Loc loc, string symbol) : Type(loc), symbol(symbol) {};
     virtual ~TypeSymbol() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
@@ -309,59 +290,48 @@ public:
 class TypeTop : public Type {
 public:
     TypeTop(Loc loc) : Type(loc) {}
-    virtual ~TypeTop() {}
+    virtual ~TypeTop() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeTrue : public Type {
 public:
     TypeTrue(Loc loc) : Type(loc) {}
-    virtual ~TypeTrue() {}
+    virtual ~TypeTrue() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeTuple : public Type {
 public:
-    vector<Type *> types;
+    vector<unique_ptr<Type>> types;
 
     TypeTuple(Loc loc) : Type(loc){};
-
-    virtual ~TypeTuple() {
-        for (auto type : types) {
-            delete type;
-        }
-    }
-
+    virtual ~TypeTuple() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeUnion : public Type {
 public:
-    vector<Type *> types;
+    vector<unique_ptr<Type>> types;
 
     TypeUnion(Loc loc) : Type(loc){};
-    TypeUnion(Loc loc, vector<Type *> types) : Type(loc), types(types){};
+    TypeUnion(Loc loc, vector<unique_ptr<Type>> types) : Type(loc), types(move(types)) {};
 
-    virtual ~TypeUnion() {
-        for (auto type : types) {
-            delete type;
-        }
-    }
-
+    virtual ~TypeUnion() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeUntyped : public Type {
 public:
     TypeUntyped(Loc loc) : Type(loc) {}
-    virtual ~TypeUntyped() {}
+    virtual ~TypeUntyped() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeVoid : public Type {
 public:
     TypeVoid(Loc loc) : Type(loc) {}
-    virtual ~TypeVoid() {}
+    virtual ~TypeVoid() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -370,27 +340,19 @@ public:
 class RecordField : public Node {
 public:
     string name;
-    Type *type;
+    unique_ptr<Type> type;
 
-    RecordField(Loc loc, string name, Type *type) : Node(loc), name(name), type(type){};
-
-    virtual ~RecordField() { delete type; }
-
+    RecordField(Loc loc, string name, unique_ptr<Type> type) : Node(loc), name(name), type(move(type)) {};
+    virtual ~RecordField() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Record : public Type {
 public:
-    vector<RecordField *> fields;
+    vector<unique_ptr<RecordField>> fields;
 
     Record(Loc loc) : Type(loc) {}
-
-    virtual ~Record() {
-        for (auto field : fields) {
-            delete field;
-        }
-    }
-
+    virtual ~Record() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -403,7 +365,7 @@ public:
     bool unchecked;
 
     TypeParam(Loc loc, string name, string variance, bool unchecked)
-        : Node(loc), name(name), variance(variance), unchecked(unchecked){};
+        : Node(loc), name(name), variance(variance), unchecked(unchecked) {};
     virtual ~TypeParam() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
@@ -413,31 +375,23 @@ public:
 class Decl : public Node {
 public:
     Decl(Loc loc) : Node(loc) {}
-    virtual ~Decl() {}
+    virtual ~Decl() = default;
 };
 
 class Member : public Node {
 public:
-    Member(Loc loc) : Node(loc){};
-    virtual ~Member() {}
+    Member(Loc loc) : Node(loc) {};
+    virtual ~Member() = default;
 };
 
 class Scope : public Decl {
 public:
     string name;
-    vector<TypeParam *> typeParams;
-    vector<Member *> members;
+    vector<unique_ptr<TypeParam>> typeParams;
+    vector<unique_ptr<Member>> members;
 
-    Scope(Loc loc, string name) : Decl(loc), name(name){};
-
-    virtual ~Scope() {
-        for (auto type : typeParams) {
-            delete type;
-        }
-        for (auto member : members) {
-            delete member;
-        }
-    }
+    Scope(Loc loc, string name) : Decl(loc), name(name) {};
+    virtual ~Scope() = default;
 };
 
 class Class : public Scope {
@@ -452,10 +406,10 @@ public:
 class Const : public Decl {
 public:
     string name;
-    Type *type;
+    unique_ptr<Type> type;
 
-    Const(Loc loc, string name, Type *type) : Decl(loc), name(name), type(type){};
-    virtual ~Const() { delete type; }
+    Const(Loc loc, string name, unique_ptr<Type> type) : Decl(loc), name(name), type(move(type)) {};
+    virtual ~Const() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -463,7 +417,7 @@ class Extension : public Scope {
 public:
     string extensionName;
 
-    Extension(Loc loc, string name, string extensionName) : Scope(loc, name), extensionName(extensionName){};
+    Extension(Loc loc, string name, string extensionName) : Scope(loc, name), extensionName(extensionName) {};
     virtual ~Extension() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
@@ -471,35 +425,36 @@ public:
 class Global : public Decl {
 public:
     string name;
-    Type *type;
+    unique_ptr<Type> type;
 
-    Global(Loc loc, string name, Type *type) : Decl(loc), name(name), type(type){};
-    virtual ~Global() { delete type; }
+    Global(Loc loc, string name, unique_ptr<Type> type) : Decl(loc), name(name), type(move(type)) {};
+    virtual ~Global() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Interface : public Scope {
 public:
-    Interface(Loc loc, string name) : Scope(loc, name){};
-    virtual ~Interface() {}
+    Interface(Loc loc, string name) : Scope(loc, name) {};
+    virtual ~Interface() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Module : public Scope {
 public:
-    Type *selfType;
-    Module(Loc loc, string name) : Scope(loc, name), selfType(NULL){};
-    virtual ~Module() { delete selfType; }
+    unique_ptr<Type> selfType;
+
+    Module(Loc loc, string name) : Scope(loc, name) {};
+    virtual ~Module() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class TypeDecl : public Decl {
 public:
     string name;
-    Type *type;
+    unique_ptr<Type> type;
 
-    TypeDecl(Loc loc, string name, Type *type) : Decl(loc), name(name), type(type){};
-    virtual ~TypeDecl() { delete type; }
+    TypeDecl(Loc loc, string name, unique_ptr<Type> type) : Decl(loc), name(name), type(move(type)) {};
+    virtual ~TypeDecl() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -511,7 +466,7 @@ public:
     string to;
     bool singleton;
 
-    Alias(Loc loc, string from, string to, bool singleton) : Member(loc), from(from), to(to), singleton(singleton){};
+    Alias(Loc loc, string from, string to, bool singleton) : Member(loc), from(from), to(to), singleton(singleton) {};
     virtual ~Alias() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
@@ -520,51 +475,48 @@ class Attr : public Member {
 public:
     string name;
     string ivar;
-    Type *type;
+    unique_ptr<Type> type;
 
-    Attr(Loc loc, string name, string ivar, Type *type) : Member(loc), name(name), ivar(ivar), type(type){};
+    Attr(Loc loc, string name, string ivar, unique_ptr<Type> type) : Member(loc), name(name), ivar(ivar), type(move(type)) {};
     virtual ~Attr() = default;
 };
 
 class AttrAccessor : public Attr {
 public:
-    AttrAccessor(Loc loc, string name, string ivar, Type *type) : Attr(loc, name, ivar, type){};
-
-    virtual ~AttrAccessor() {}
+    AttrAccessor(Loc loc, string name, string ivar, unique_ptr<Type> type) : Attr(loc, name, ivar, move(type)) {};
+    virtual ~AttrAccessor() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class AttrReader : public Attr {
 public:
-    AttrReader(Loc loc, string name, string ivar, Type *type) : Attr(loc, name, ivar, type){};
-
-    virtual ~AttrReader() {}
+    AttrReader(Loc loc, string name, string ivar, unique_ptr<Type> type) : Attr(loc, name, ivar, move(type)) {};
+    virtual ~AttrReader() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class AttrWriter : public Attr {
 public:
-    AttrWriter(Loc loc, string name, string ivar, Type *type) : Attr(loc, name, ivar, type){};
-
-    virtual ~AttrWriter() {}
+    AttrWriter(Loc loc, string name, string ivar, unique_ptr<Type> type) : Attr(loc, name, ivar, move(type)) {};
+    virtual ~AttrWriter() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Include : public Member {
 public:
-    Type *type;
+    unique_ptr<Type> type;
 
-    Include(Loc loc, Type *type) : Member(loc), type(type) {}
-    virtual ~Include() { delete type; }
+    Include(Loc loc, unique_ptr<Type> type) : Member(loc), type(move(type)) {}
+    virtual ~Include() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Extend : public Member {
 public:
-    Type *type;
+    unique_ptr<Type> type;
 
-    Extend(Loc loc, Type *type) : Member(loc), type(type) {}
-    virtual ~Extend() { delete type; }
+    Extend(Loc loc, unique_ptr<Type> type) : Member(loc), type(move(type)) {}
+    virtual ~Extend() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
@@ -572,59 +524,46 @@ public:
 
 class Block : public Type {
 public:
-    TypeProc *sig;
+    unique_ptr<TypeProc> sig;
     bool optional = false;
 
-    Block(Loc loc, TypeProc *sig, bool optional) : Type(loc), sig(sig), optional(optional){};
-    virtual ~Block() { delete sig; }
+    Block(Loc loc, unique_ptr<TypeProc> sig, bool optional) : Type(loc), sig(move(sig)), optional(optional) {};
+    virtual ~Block() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class MethodType : public Node {
 public:
-    vector<TypeParam *> typeParams;
-    TypeProc *sig;
-    Block *block;
+    vector<unique_ptr<TypeParam>> typeParams;
+    unique_ptr<TypeProc> sig;
+    unique_ptr<Block> block;
 
-    MethodType(Loc loc, TypeProc *sig) : Node(loc), sig(sig), block(NULL) {}
-
-    virtual ~MethodType() {
-        for (auto type : typeParams) {
-            delete type;
-        }
-        delete sig;
-        delete block;
-    }
-
+    MethodType(Loc loc, unique_ptr<TypeProc> sig) : Node(loc), sig(move(sig)) {}
+    virtual ~MethodType() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Method : public Member {
 public:
     string name;
-    vector<MethodType *> types;
+    vector<unique_ptr<MethodType>> types;
     bool instance;
     bool singleton;
     bool incompatible;
 
     Method(Loc loc, string name, bool instance, bool singleton, bool incompatible)
-        : Member(loc), name(name), instance(instance), singleton(singleton), incompatible(incompatible){};
+        : Member(loc), name(name), instance(instance), singleton(singleton), incompatible(incompatible) {};
 
-    virtual ~Method() {
-        for (auto type : types) {
-            delete type;
-        }
-    }
-
+    virtual ~Method() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 class Prepend : public Member {
 public:
-    Type *type;
+    unique_ptr<Type> type;
 
-    Prepend(Loc loc, Type *type) : Member(loc), type(type) {}
-    virtual ~Prepend() { delete type; }
+    Prepend(Loc loc, unique_ptr<Type> type) : Member(loc), type(move(type)) {}
+    virtual ~Prepend() = default;
     virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 

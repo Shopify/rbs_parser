@@ -170,7 +170,7 @@ public:
 
     virtual void visit(TypeNilable *type) {
         print("T.nilable(");
-        enterVisit(type->type);
+        enterVisit(type->type.get());
         print(")");
     }
 
@@ -191,9 +191,9 @@ public:
         print(")");
     }
 
-    void printTypes(std::vector<Type *> types) {
+    void printTypes(const std::vector<std::unique_ptr<Type>> &types) {
         for (int i = 0; i < types.size(); i++) {
-            enterVisit(types[i]);
+            enterVisit(types[i].get());
             if (i < types.size() - 1) {
                 print(", ");
             }
@@ -232,7 +232,7 @@ public:
         if (!type->params.empty()) {
             print(".params(");
             for (int i = 0; i < type->params.size(); i++) {
-                printParam(type->params[i], i);
+                printParam(type->params[i].get(), i);
                 if (i < type->params.size() - 1) {
                     print(", ");
                 }
@@ -240,11 +240,11 @@ public:
             print(")");
         }
         print(".");
-        if (TypeVoid *type_void = dynamic_cast<TypeVoid *>(type->ret)) {
+        if (TypeVoid *type_void = dynamic_cast<TypeVoid *>(type->ret.get())) {
             enterVisit(type_void);
         } else {
             print("returns(");
-            enterVisit(type->ret);
+            enterVisit(type->ret.get());
             print(")");
         }
     }
@@ -260,13 +260,13 @@ public:
             print(field->name);
         }
         print(": ");
-        enterVisit(field->type);
+        enterVisit(field->type.get());
     }
 
     virtual void visit(Record *type) {
         print("{ ");
         for (int i = 0; i < type->fields.size(); i++) {
-            enterVisit(type->fields[i]);
+            enterVisit(type->fields[i].get());
             if (i < type->fields.size() - 1) {
                 print(", ");
             }
@@ -297,14 +297,14 @@ public:
             printl("extend T::Generic");
             for (int i = 0; i < decl->typeParams.size(); i++) {
                 printn();
-                enterVisit(decl->typeParams[i]);
+                enterVisit(decl->typeParams[i].get());
             }
         }
         for (int i = 0; i < decl->members.size(); i++) {
             if (i > 0 || !decl->typeParams.empty()) {
                 printn();
             }
-            enterVisit(decl->members[i]);
+            enterVisit(decl->members[i].get());
         }
         dedent();
         printl("end");
@@ -316,7 +316,7 @@ public:
 
     virtual void visit(Module *decl) {
         if (decl->selfType != NULL) {
-            warnUnsupported(static_cast<Node *>(decl->selfType), "Unsupported `module self type`");
+            warnUnsupported(static_cast<Node *>(decl->selfType.get()), "Unsupported `module self type`");
         }
         printScope("module", decl->name, decl);
     }
@@ -331,7 +331,7 @@ public:
     virtual void visit(Const *decl) {
         printt();
         print(decl->name + " = ");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn();
     }
 
@@ -341,7 +341,7 @@ public:
         printt();
         print(sanitizeAliasName(decl->name));
         print(" = T.type_alias { ");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn(" }");
     }
 
@@ -361,7 +361,7 @@ public:
     virtual void visit(AttrReader *decl) {
         printt();
         print("sig { returns(");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn(") }");
         printl("attr_reader :" + decl->name);
     }
@@ -369,7 +369,7 @@ public:
     virtual void visit(AttrWriter *decl) {
         printt();
         print("sig { params(" + decl->name + ": ");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn(").void }");
         printl("attr_writer :" + decl->name);
     }
@@ -377,7 +377,7 @@ public:
     virtual void visit(AttrAccessor *decl) {
         printt();
         print("sig { returns(");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn(") }");
         printl("attr_accessor :" + decl->name);
     }
@@ -392,11 +392,11 @@ public:
         inInclude = false;
     }
 
-    virtual void visit(Include *include) { printInclude("include", include->type); }
+    virtual void visit(Include *include) { printInclude("include", include->type.get()); }
 
-    virtual void visit(Extend *extend) { printInclude("extend", extend->type); }
+    virtual void visit(Extend *extend) { printInclude("extend", extend->type.get()); }
 
-    virtual void visit(Prepend *prepend) { printInclude("prepend", prepend->type); }
+    virtual void visit(Prepend *prepend) { printInclude("prepend", prepend->type.get()); }
 
     virtual void visit(Visibility *decl) {
         warnUnsupported(static_cast<Node *>(decl), "Unsupported `" + decl->name + "`");
@@ -407,7 +407,7 @@ public:
             warnUnsupported(static_cast<Node *>(decl), "Unsupported `incompatible`");
         }
         for (int i = 0; i < decl->types.size(); i++) {
-            enterVisit(decl->types[i]);
+            enterVisit(decl->types[i].get());
             // break; // TODO handle multiple signatures
         }
         printt();
@@ -417,7 +417,7 @@ public:
         }
         print(sanitizeDefName(decl->name));
         if (!decl->types.empty()) {
-            auto type = decl->types[0];
+            auto type = decl->types[0].get();
             if (!type->sig->params.empty() || type->block != NULL) {
                 print("(");
                 for (int i = 0; i < type->sig->params.size(); i++) {
@@ -456,12 +456,12 @@ public:
             print("arg" + std::to_string(count));
         }
         print(": ");
-        if (param->optional && !dynamic_cast<TypeNilable *>(param->type)) {
+        if (param->optional && !dynamic_cast<TypeNilable *>(param->type.get())) {
             print("T.nilable(");
-            enterVisit(param->type);
+            enterVisit(param->type.get());
             print(")");
         } else {
-            enterVisit(param->type);
+            enterVisit(param->type.get());
         }
     }
 
@@ -485,7 +485,7 @@ public:
             }
             print("params(");
             for (int i = 0; i < type->sig->params.size(); i++) {
-                printParam(type->sig->params[i], i);
+                printParam(type->sig->params[i].get(), i);
                 if (i < type->sig->params.size() - 1) {
                     print(", ");
                 }
@@ -495,15 +495,15 @@ public:
                     print(", ");
                 }
                 print("_blk: ");
-                enterVisit(type->block);
+                enterVisit(type->block.get());
             }
             print(").");
         }
-        if (TypeVoid *type_void = dynamic_cast<TypeVoid *>(type->sig->ret)) {
+        if (TypeVoid *type_void = dynamic_cast<TypeVoid *>(type->sig->ret.get())) {
             enterVisit(type_void);
         } else {
             print("returns(");
-            enterVisit(type->sig->ret);
+            enterVisit(type->sig->ret.get());
             print(")");
         }
         printn(" }");
@@ -514,7 +514,7 @@ public:
         if (block->optional) {
             print("T.nilable(");
         }
-        enterVisit(block->sig);
+        enterVisit(block->sig.get());
         if (block->optional) {
             print(")");
         }

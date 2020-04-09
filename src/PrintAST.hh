@@ -24,10 +24,10 @@ public:
         print(": ");
     }
 
-    void printTypes(std::vector<Type *> types, std::string begin, std::string sep, std::string end) {
+    void printTypes(const std::vector<unique_ptr<Type>> &types, std::string begin, std::string sep, std::string end) {
         print(begin);
         for (int i = 0; i < types.size(); i++) {
-            enterVisit(types[i]);
+            enterVisit(types[i].get());
             if (i < types.size() - 1) {
                 print(sep);
             }
@@ -35,13 +35,13 @@ public:
         print(end);
     }
 
-    void printTypeParams(std::vector<TypeParam *> params) {
+    void printTypeParams(const std::vector<std::unique_ptr<TypeParam>> &params) {
         if (params.empty()) {
             return;
         }
         print("[");
         for (int i = 0; i < params.size(); i++) {
-            enterVisit(params[i]);
+            enterVisit(params[i].get());
             if (i < params.size() - 1) {
                 print(", ");
             }
@@ -56,7 +56,7 @@ public:
             print(" (" + decl->ivar + ")");
         }
         print(": ");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn();
     }
 
@@ -77,7 +77,7 @@ public:
     virtual void visit(TypeSingleton *type) { print("singleton(" + type->name + ")"); }
 
     virtual void visit(TypeNilable *type) {
-        enterVisit(type->type);
+        enterVisit(type->type.get());
         print("?");
     }
 
@@ -119,11 +119,11 @@ public:
         printn("signature");
         indent();
         for (int i = 0; i < type->params.size(); i++) {
-            enterVisit(type->params[i]);
+            enterVisit(type->params[i].get());
         }
         if (type->ret) {
-            printLoc(type->ret);
-            enterVisit(type->ret);
+            printLoc(type->ret.get());
+            enterVisit(type->ret.get());
             printn();
         }
         dedent();
@@ -135,8 +135,8 @@ public:
         printLoc(field);
         print(field->name);
         print(" => ");
-        enterVisit(field->type);
-        if (!dynamic_cast<Record *>(field->type)) {
+        enterVisit(field->type.get());
+        if (!dynamic_cast<Record *>(field->type.get())) {
             printn();
         }
     }
@@ -145,7 +145,7 @@ public:
         printn("record");
         indent();
         for (int i = 0; i < type->fields.size(); i++) {
-            enterVisit(type->fields[i]);
+            enterVisit(type->fields[i].get());
         }
         dedent();
     }
@@ -172,7 +172,7 @@ public:
         printn();
         indent();
         for (int i = 0; i < decl->members.size(); i++) {
-            enterVisit(decl->members[i]);
+            enterVisit(decl->members[i].get());
         }
         dedent();
     }
@@ -183,12 +183,12 @@ public:
         printTypeParams(decl->typeParams);
         if (decl->selfType != NULL) {
             print(": ");
-            enterVisit(decl->selfType);
+            enterVisit(decl->selfType.get());
         }
         printn();
         indent();
         for (int i = 0; i < decl->members.size(); i++) {
-            enterVisit(decl->members[i]);
+            enterVisit(decl->members[i].get());
         }
         dedent();
     }
@@ -200,7 +200,7 @@ public:
         printn();
         indent();
         for (int i = 0; i < decl->members.size(); i++) {
-            enterVisit(decl->members[i]);
+            enterVisit(decl->members[i].get());
         }
         dedent();
     }
@@ -212,7 +212,7 @@ public:
         printn();
         indent();
         for (int i = 0; i < decl->members.size(); i++) {
-            enterVisit(decl->members[i]);
+            enterVisit(decl->members[i].get());
         }
         dedent();
     }
@@ -220,28 +220,28 @@ public:
     virtual void visit(Const *decl) {
         printLoc(decl);
         print("const: " + decl->name + " = ");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn();
     }
 
     virtual void visit(Global *decl) {
         printLoc(decl);
         print("global: " + decl->name + " = ");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn();
     }
 
     virtual void visit(TypeDecl *decl) {
         printLoc(decl);
         print("type: " + decl->name + " = ");
-        if (Block *d = dynamic_cast<Block *>(decl->type)) {
+        if (Block *d = dynamic_cast<Block *>(decl->type.get())) {
             print("block");
             printn();
             indent();
             enterVisit(d);
             dedent();
         } else {
-            enterVisit(decl->type);
+            enterVisit(decl->type.get());
             printn();
         }
     }
@@ -266,21 +266,21 @@ public:
     virtual void visit(Include *decl) {
         printLoc(decl);
         print("include ");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn();
     }
 
     virtual void visit(Extend *decl) {
         printLoc(decl);
         print("extend ");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn();
     }
 
     virtual void visit(Prepend *decl) {
         printLoc(decl);
         print("prepend ");
-        enterVisit(decl->type);
+        enterVisit(decl->type.get());
         printn();
     }
 
@@ -305,7 +305,7 @@ public:
         printn(decl->name);
         indent();
         for (int i = 0; i < decl->types.size(); i++) {
-            enterVisit(decl->types[i]);
+            enterVisit(decl->types[i].get());
         }
         dedent();
     }
@@ -316,9 +316,9 @@ public:
         printTypeParams(type->typeParams);
         printn();
         indent();
-        enterVisit(type->sig);
+        enterVisit(type->sig.get());
         if (type->block) {
-            enterVisit(type->block);
+            enterVisit(type->block.get());
         }
         dedent();
     }
@@ -327,7 +327,7 @@ public:
         printLoc(type);
         printn(type->optional ? "block optional" : "block");
         indent();
-        enterVisit(type->sig);
+        enterVisit(type->sig.get());
         dedent();
     }
 
@@ -340,7 +340,7 @@ public:
         if (param->vararg) {
             print("*");
         }
-        enterVisit(param->type);
+        enterVisit(param->type.get());
         if (!param->name.empty()) {
             print(" " + param->name);
         }
