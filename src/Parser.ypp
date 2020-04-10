@@ -166,7 +166,7 @@
         new Const(
           driver.loc(@1, @3),
           *$1.string + *$2.string,
-          unique_ptr<Type>(static_cast<Type*>($3.node))));
+          driver.type($3.node)));
     }
 
   // Globals
@@ -179,15 +179,10 @@
 
   extension_decl
     : kEXTENSION class_name module_type_params kLPAREN extension_name kRPAREN class_members kEND
-    // TODO should be type params?
     {
       Extension* decl = new Extension(driver.loc(@1, @8), *$2.string, *$5.string);
-      for (auto &node : $3.list->nodes) {
-        decl->typeParams.emplace_back(static_cast<TypeParam*>(node));
-      }
-      for (auto &node : $7.list->nodes) {
-        decl->members.emplace_back(static_cast<Member*>(node));
-      }
+      decl->typeParams = driver.cast_list<TypeParam>($3.list);
+      decl->members = driver.cast_list<Member>($7.list);
       driver.file->decls.push_back(decl);
     }
 
@@ -201,14 +196,10 @@
     : kMODULE class_name module_type_params module_self_type class_members kEND
     {
       Module* decl = new Module(driver.loc(@1, @6), *$2.string);
-      for (auto &node : $3.list->nodes) {
-        decl->typeParams.emplace_back(static_cast<TypeParam*>(node));
-      }
+      decl->typeParams = driver.cast_list<TypeParam>($3.list);
+      decl->members = driver.cast_list<Member>($5.list);
       if ($4.node != NULL) {
         decl->selfType = driver.type(($4.node));
-      }
-      for (auto &node : $5.list->nodes) {
-        decl->members.emplace_back(static_cast<Member*>(node));
       }
       driver.file->decls.push_back(decl);
     }
@@ -217,9 +208,7 @@
       $3.string->pop_back();
       Module* decl = new Module(driver.loc(@1, @6), *$2.string + *$3.string);
       decl->selfType = driver.type(($4.node));
-      for (auto &node : $5.list->nodes) {
-        decl->members.emplace_back(static_cast<Member*>(node));
-      }
+      decl->members = driver.cast_list<Member>($5.list);
       driver.file->decls.push_back(decl);
     }
 
@@ -235,12 +224,8 @@
     : kINTERFACE interface_name module_type_params class_members kEND
     {
       Interface* decl = new Interface(driver.loc(@1, @5), *$2.string);
-      for (auto &node : $3.list->nodes) {
-        decl->typeParams.emplace_back(static_cast<TypeParam*>(node));
-      }
-      for (auto &node : $4.list->nodes) {
-        decl->members.emplace_back(static_cast<Member*>(node));
-      }
+      decl->typeParams = driver.cast_list<TypeParam>($3.list);
+      decl->members = driver.cast_list<Member>($4.list);
       driver.file->decls.push_back(decl);
     }
 
@@ -254,12 +239,8 @@
     : kCLASS class_name module_type_params super_class class_members kEND
     {
       Class* decl = new Class(driver.loc(@1, @6), *$2.string, *$4.string);
-      for (auto &node : $3.list->nodes) {
-        decl->typeParams.emplace_back(static_cast<TypeParam*>(node));
-      }
-      for (auto &node : $5.list->nodes) {
-        decl->members.emplace_back(static_cast<Member*>(node));
-      }
+      decl->typeParams = driver.cast_list<TypeParam>($3.list);
+      decl->members = driver.cast_list<Member>($5.list);
       driver.file->decls.push_back(decl);
     }
 
@@ -285,9 +266,9 @@
 
   module_type_params0
     : module_type_param
-    { $$.list = driver.list($1.node); }
+    { $$.list = driver.list(unique_ptr<Node>($1.node)); }
     | module_type_params0 kCOMMA module_type_param
-    { $$.list = driver.merge($1.list, $3.node); }
+    { $$.list = driver.merge($1.list, unique_ptr<Node>($3.node)); }
 
   module_type_param
     : type_param_check type_param_variance tUIDENT
@@ -310,7 +291,7 @@
     : %empty
     { $$.list = driver.list(); }
     | class_members class_member
-    { $$.list = driver.merge($1.list, $2.node); }
+    { $$.list = driver.merge($1.list, unique_ptr<Node>($2.node)); }
 
   class_member
     : alias_member
@@ -356,9 +337,7 @@
     | kINCLUDE qualified_name kLBRACKET type_list kRBRACKET
     {
       std::unique_ptr<TypeGeneric> type = std::make_unique<TypeGeneric>(driver.loc(@2, @5), *$2.string);
-      for (auto &ptype : $4.list->nodes) {
-        type->types.emplace_back(static_cast<Type*>(ptype));
-      }
+      type->types = driver.cast_list<Type>($4.list);
       $$.node = new Include(driver.loc(@1, @5), std::unique_ptr<Type>(type.release()));
     }
 
@@ -368,9 +347,7 @@
     | kEXTEND qualified_name kLBRACKET type_list kRBRACKET
     {
       std::unique_ptr<TypeGeneric> type = std::make_unique<TypeGeneric>(driver.loc(@2, @5), *$2.string);
-      for (auto &ptype : $4.list->nodes) {
-        type->types.emplace_back(static_cast<Type*>(ptype));
-      }
+      type->types = driver.cast_list<Type>($4.list);
       $$.node = new Extend(driver.loc(@1, @5), std::unique_ptr<Type>(type.release()));
     }
 
@@ -380,9 +357,7 @@
     | kPREPEND qualified_name kLBRACKET type_list kRBRACKET
     {
       std::unique_ptr<TypeGeneric> type = std::make_unique<TypeGeneric>(driver.loc(@2, @5), *$2.string);
-      for (auto &ptype : $4.list->nodes) {
-        type->types.emplace_back(static_cast<Type*>(ptype));
-      }
+      type->types = driver.cast_list<Type>($4.list);
       $$.node = new Prepend(driver.loc(@1, @5), std::unique_ptr<Type>(type.release()));
     }
 
@@ -395,9 +370,7 @@
       auto singleton = !$3.string->empty();
       auto incompatible = !$1.string->empty();
       Method* decl = new Method(driver.loc(@2, @5), *$4.string, instance, singleton, incompatible);
-      for (auto &node : $5.list->nodes) {
-        decl->types.emplace_back(static_cast<MethodType*>(node));
-      }
+      decl->types = driver.cast_list<MethodType>($5.list);
       $$.node = decl;
     }
 
@@ -443,23 +416,19 @@
     : %empty
     { $$.list = driver.list(); }
     | method_types kBAR method_type
-    { $$.list = driver.merge($1.list, $3.node); }
+    { $$.list = driver.merge($1.list, unique_ptr<Node>($3.node)); }
     | method_type
-    { $$.list = driver.list($1.node); }
+    { $$.list = driver.list(unique_ptr<Node>($1.node)); }
 
   method_type
     : type_params params_opt block_opt kARROW type
     {
       std::unique_ptr<TypeProc> sig = std::make_unique<TypeProc>(driver.loc(@1, @5));
-      for (auto &node : $2.list->nodes) {
-        sig->params.emplace_back(static_cast<Param*>(node));
-      }
+      sig->params = driver.cast_list<Param>($2.list);
       sig->ret = driver.type(($5.node));
 
       MethodType* type = new MethodType(driver.loc(@1, @5), move(sig));
-      for (auto &node : $1.list->nodes) {
-        type->typeParams.emplace_back(static_cast<TypeParam*>(node));
-      }
+      type->typeParams = driver.cast_list<TypeParam>($1.list);
       if ($3.node) {
         type->block = unique_ptr<Block>(static_cast<Block*>($3.node));
       }
@@ -474,9 +443,9 @@
 
   type_params0
     : tUIDENT
-    { $$.list = driver.list(new TypeParam(driver.loc(@1, @1), *$1.string, "", false)); }
+    { $$.list = driver.list(make_unique<TypeParam>(driver.loc(@1, @1), *$1.string, "", false)); }
     | type_params0 kCOMMA tUIDENT
-    { $$.list = driver.merge($1.list, new TypeParam(driver.loc(@3, @3), *$3.string, "", false)); }
+    { $$.list = driver.merge($1.list, make_unique<TypeParam>(driver.loc(@3, @3), *$3.string, "", false)); }
 
   params_opt
     : %empty
@@ -502,9 +471,7 @@
     | kLPAREN params kRPAREN kARROW type
     {
       TypeProc* sig = new TypeProc(driver.loc(@1, @5), driver.type($5.node));
-      for (auto &node : $2.list->nodes) {
-        sig->params.emplace_back(static_cast<Param*>(node));
-      }
+      sig->params = driver.cast_list<Param>($2.list);
       $$.node = sig;
     }
     | kARROW simple_type
@@ -512,9 +479,9 @@
 
   params
     : required_positional kCOMMA params
-    { $$.list = driver.merge($1.node, $3.list); }
+    { $$.list = driver.merge(std::unique_ptr<Node>($1.node), $3.list); }
     | required_positional
-    { $$.list = driver.list($1.node); }
+    { $$.list = driver.list(std::unique_ptr<Node>($1.node)); }
     | optional_positionals
 
   required_positional
@@ -523,9 +490,9 @@
 
   optional_positionals
     : optional_positional kCOMMA optional_positionals
-    { $$.list = driver.merge($1.node, $3.list); }
+    { $$.list = driver.merge(std::unique_ptr<Node>($1.node), $3.list); }
     | optional_positional
-    { $$.list = driver.list($1.node); }
+    { $$.list = driver.list(std::unique_ptr<Node>($1.node)); }
     | rest_positionals
 
   optional_positional
@@ -534,9 +501,9 @@
 
   rest_positionals
     : rest_positional kCOMMA rest_positionals
-    { $$.list = driver.merge($1.node, $3.list); }
+    { $$.list = driver.merge(std::unique_ptr<Node>($1.node), $3.list); }
     | rest_positional
-    { $$.list = driver.list($1.node); }
+    { $$.list = driver.list(std::unique_ptr<Node>($1.node)); }
     | keywords
 
   rest_positional
@@ -547,15 +514,15 @@
     : %empty
     { $$.list = driver.list(); }
     | required_keyword kCOMMA keywords
-    { $$.list = driver.merge($1.node, $3.list); }
+    { $$.list = driver.merge(std::unique_ptr<Node>($1.node), $3.list); }
     | required_keyword
-    { $$.list = driver.list($1.node); }
+    { $$.list = driver.list(std::unique_ptr<Node>($1.node)); }
     | optional_keyword kCOMMA keywords
-    { $$.list = driver.merge($1.node, $3.list); }
+    { $$.list = driver.merge(std::unique_ptr<Node>($1.node), $3.list); }
     | optional_keyword
-    { $$.list = driver.list($1.node); }
+    { $$.list = driver.list(std::unique_ptr<Node>($1.node)); }
     | rest_keyword
-    { $$.list = driver.list($1.node); }
+    { $$.list = driver.list(std::unique_ptr<Node>($1.node)); }
 
   required_keyword
     : keyword_name type var_name_opt
@@ -598,9 +565,9 @@
           types.emplace_back(move(type));
         }
       } else {
-        types.emplace_back(static_cast<Type*>($1.node));
+        types.emplace_back(driver.type($1.node));
       }
-      types.emplace_back(static_cast<Type*>($3.node));
+      types.emplace_back(driver.type($3.node));
       $$.node = new TypeUnion(driver.loc(@1, @3), move(types));
     }
     | type kAMP type
@@ -611,9 +578,9 @@
           types.emplace_back(move(type));
         }
       } else {
-        types.emplace_back(static_cast<Type*>($1.node));
+        types.emplace_back(driver.type($1.node));
       }
-      types.emplace_back(static_cast<Type*>($3.node));
+      types.emplace_back(driver.type($3.node));
       $$.node = new TypeIntersection(driver.loc(@1, @3), move(types));
     }
 
@@ -655,17 +622,13 @@
     | qualified_name kLBRACKET type_list kRBRACKET
     {
       TypeGeneric* type = new TypeGeneric(driver.loc(@1, @4), *$1.string);
-      for (auto &ptype : $3.list->nodes) {
-        type->types.emplace_back(static_cast<Type*>(ptype));
-      }
+      type->types = driver.cast_list<Type>($3.list);
       $$.node = type;
     }
     | kLBRACKET type_list kRBRACKET
     {
       TypeTuple* tuple = new TypeTuple(driver.loc(@1, @3));
-      for (auto &type : $2.list->nodes) {
-        tuple->types.emplace_back(static_cast<Type*>(type));
-      }
+      tuple->types = driver.cast_list<Type>($2.list);
       $$.node = tuple;
     }
     | kLBRACKET kRBRACKET
@@ -682,9 +645,9 @@
 
   type_list
     : type
-    { $$.list = driver.list($1.node); }
+    { $$.list = driver.list(unique_ptr<Node>($1.node)); }
     | type_list kCOMMA type
-    { $$.list = driver.merge($1.list, $3.node); }
+    { $$.list = driver.merge($1.list, unique_ptr<Node>($3.node)); }
 
   proc_type
     : kLPAREN kRPAREN kARROW simple_type
@@ -692,9 +655,7 @@
     | kLPAREN params kRPAREN kARROW simple_type
     {
       TypeProc* sig = new TypeProc(driver.loc(@1, @5), driver.type($5.node));
-      for (auto &node : $2.list->nodes) {
-        sig->params.emplace_back(static_cast<Param*>(node));
-      }
+      sig->params = driver.cast_list<Param>($2.list);
       $$.node = sig;
     }
     | kARROW simple_type
@@ -704,17 +665,15 @@
     : kLBRACE record_fields kRBRACE
     {
       Record* record = new Record(driver.loc(@1, @3));
-      for (auto &node : $2.list->nodes) {
-        record->fields.emplace_back(static_cast<RecordField*>(node));
-      }
+      record->fields = driver.cast_list<RecordField>($2.list);
       $$.node = record;
     }
 
   record_fields
     : record_field
-    { $$.list = driver.list($1.node); }
+    { $$.list = driver.list(unique_ptr<Node>($1.node)); }
     | record_field kCOMMA record_fields
-    { $$.list = driver.merge($1.node, $3.list); }
+    { $$.list = driver.merge(unique_ptr<Node>($1.node), $3.list); }
 
   record_field
     : tSYMBOL kFATARROW type

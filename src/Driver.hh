@@ -21,31 +21,49 @@ public:
 
     NodeList *list() { return new NodeList(); }
 
-    NodeList *list(Node *node) { return new NodeList(node); }
-
-    NodeList *merge(Node *node1, Node *node2) {
+    NodeList *list(unique_ptr<Node> node) {
         NodeList *list = new NodeList();
-        list->emplace_back(node1);
-        list->emplace_back(node2);
+        list->emplace_back(move(node));
         return list;
     }
 
-    NodeList *merge(Node *node, NodeList *nodes) {
+    NodeList *merge(unique_ptr<Node> node1, unique_ptr<Node> node2) {
         NodeList *list = new NodeList();
-        list->emplace_back(node);
+        list->emplace_back(move(node1));
+        list->emplace_back(move(node2));
+        return list;
+    }
+
+    NodeList *merge(unique_ptr<Node> node, NodeList *nodes) {
+        NodeList *list = new NodeList();
+        list->emplace_back(move(node));
         list->concat(nodes);
         return list;
     }
 
-    NodeList *merge(NodeList *nodes, Node *node) {
+    NodeList *merge(NodeList *nodes, unique_ptr<Node> node) {
         NodeList *list = new NodeList();
         list->concat(nodes);
-        list->emplace_back(node);
+        list->emplace_back(move(node));
         return list;
     }
 
     std::unique_ptr<Type> type(Node *node) {
         return std::unique_ptr<Type>(static_cast<Type *>(node));
+    }
+
+    template<typename T>
+    std::unique_ptr<T> cast_node(std::unique_ptr<Node> node) {
+        return std::unique_ptr<T>(static_cast<T*>(node.release()));
+    }
+
+    template<typename T>
+    std::vector<std::unique_ptr<T>> cast_list(NodeList *list) {
+        std::vector<std::unique_ptr<T>> v;
+        for (auto &node : list->nodes) {
+            v.emplace_back(cast_node<T>(move(node)));
+        }
+        return v;
     }
 };
 } // namespace rbs_parser

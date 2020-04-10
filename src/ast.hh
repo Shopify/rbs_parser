@@ -30,29 +30,17 @@ class Node {
 public:
     Loc loc;
     Node(Loc loc) : loc(loc) {}
+    virtual ~Node() = default;
     virtual void acceptVisitor(Visitor *v) = 0;
 };
 
 class NodeList {
 public:
-    vector<Node *> nodes;
+    vector<unique_ptr<Node>> nodes;
 
     NodeList() = default;
 
-    NodeList(Node *node) { nodes.emplace_back(node); }
-    NodeList(NodeList *list1, NodeList *list2) : NodeList() {
-        concat(list1);
-        concat(list2);
-    }
-
-    NodeList &operator=(const Node *&other) = delete;
-    NodeList &operator=(Node *&&other) = delete;
-
-    inline size_t size() const { return nodes.size(); }
-
-    inline void emplace_back(Node *&ptr) { nodes.emplace_back(ptr); }
-
-    inline Node *&at(size_t n) { return nodes.at(n); }
+    inline void emplace_back(unique_ptr<Node> node) { nodes.emplace_back(move(node)); }
 
     inline void concat(NodeList *other) {
         nodes.insert(nodes.end(), make_move_iterator(other->nodes.begin()), make_move_iterator(other->nodes.end()));
