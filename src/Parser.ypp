@@ -152,13 +152,13 @@
 
   type_decl
     : kTYPE qualified_name kEQ type
-    { driver.file->decls.push_back(new TypeDecl(driver.loc(@1, @4), *$2.string, std::unique_ptr<Type>(static_cast<Type*>($4.node)))); }
+    { driver.file->decls.push_back(new TypeDecl(driver.loc(@1, @4), *$2.string, driver.type($4.node))); }
 
   // Consts
 
   const_decl
     : class_name kCOLON type
-    { driver.file->decls.push_back(new Const(driver.loc(@1, @3), *$1.string, unique_ptr<Type>(static_cast<Type*>($3.node)))); }
+    { driver.file->decls.push_back(new Const(driver.loc(@1, @3), *$1.string, driver.type($3.node))); }
     | namespace tUKEYWORD type
     {
       $2.string->pop_back();
@@ -173,7 +173,7 @@
 
   global_decl
     : tGLOBALIDENT kCOLON type
-    { driver.file->decls.push_back(new Global(driver.loc(@1, @3), *$1.string, unique_ptr<Type>(static_cast<Type*>($3.node)))); }
+    { driver.file->decls.push_back(new Global(driver.loc(@1, @3), *$1.string, driver.type($3.node))); }
 
   // Extensions
 
@@ -205,7 +205,7 @@
         decl->typeParams.emplace_back(static_cast<TypeParam*>(node));
       }
       if ($4.node != NULL) {
-        decl->selfType = std::unique_ptr<Type>(static_cast<Type*>($4.node));
+        decl->selfType = driver.type(($4.node));
       }
       for (auto &node : $5.list->nodes) {
         decl->members.emplace_back(static_cast<Member*>(node));
@@ -216,7 +216,7 @@
     {
       $3.string->pop_back();
       Module* decl = new Module(driver.loc(@1, @6), *$2.string + *$3.string);
-      decl->selfType = std::unique_ptr<Type>(static_cast<Type*>($4.node));
+      decl->selfType = driver.type(($4.node));
       for (auto &node : $5.list->nodes) {
         decl->members.emplace_back(static_cast<Member*>(node));
       }
@@ -332,17 +332,17 @@
 
   attribute_member
     : kATTRREADER keyword type
-    { $$.node = new AttrReader(driver.loc(@1, @3), *$2.string, "", std::unique_ptr<Type>(static_cast<Type*>($3.node))); }
+    { $$.node = new AttrReader(driver.loc(@1, @3), *$2.string, "", driver.type($3.node)); }
     | kATTRREADER method_name attr_var_opt kCOLON type
-    { $$.node = new AttrReader(driver.loc(@1, @5), *$2.string, *$3.string, std::unique_ptr<Type>(static_cast<Type*>($5.node))); }
+    { $$.node = new AttrReader(driver.loc(@1, @5), *$2.string, *$3.string, driver.type($5.node)); }
     | kATTRWRITER keyword type
-    { $$.node = new AttrWriter(driver.loc(@1, @3), *$2.string, "", std::unique_ptr<Type>(static_cast<Type*>($3.node))); }
+    { $$.node = new AttrWriter(driver.loc(@1, @3), *$2.string, "", driver.type($3.node)); }
     | kATTRWRITER method_name attr_var_opt kCOLON type
-    { $$.node = new AttrWriter(driver.loc(@1, @5), *$2.string, *$3.string, std::unique_ptr<Type>(static_cast<Type*>($5.node))); }
+    { $$.node = new AttrWriter(driver.loc(@1, @5), *$2.string, *$3.string, driver.type($5.node)); }
     | kATTRACCESSOR keyword type
-    { $$.node = new AttrAccessor(driver.loc(@1, @3), *$2.string, "", std::unique_ptr<Type>(static_cast<Type*>($3.node))); }
+    { $$.node = new AttrAccessor(driver.loc(@1, @3), *$2.string, "", driver.type($3.node)); }
     | kATTRACCESSOR method_name attr_var_opt kCOLON type
-    { $$.node = new AttrAccessor(driver.loc(@1, @5), *$2.string, *$3.string, std::unique_ptr<Type>(static_cast<Type*>($5.node))); }
+    { $$.node = new AttrAccessor(driver.loc(@1, @5), *$2.string, *$3.string, driver.type($5.node)); }
 
   attr_var_opt
     : kLPAREN kRPAREN
@@ -454,7 +454,7 @@
       for (auto &node : $2.list->nodes) {
         sig->params.emplace_back(static_cast<Param*>(node));
       }
-      sig->ret = std::unique_ptr<Type>(static_cast<Type*>($5.node));
+      sig->ret = driver.type(($5.node));
 
       MethodType* type = new MethodType(driver.loc(@1, @5), move(sig));
       for (auto &node : $1.list->nodes) {
@@ -498,17 +498,17 @@
 
   block_type
     : kLPAREN kRPAREN kARROW type
-    { $$.node = new TypeProc(driver.loc(@1, @4), static_cast<Type*>($4.node)); }
+    { $$.node = new TypeProc(driver.loc(@1, @4), driver.type($4.node)); }
     | kLPAREN params kRPAREN kARROW type
     {
-      TypeProc* sig = new TypeProc(driver.loc(@1, @5), static_cast<Type*>($5.node));
+      TypeProc* sig = new TypeProc(driver.loc(@1, @5), driver.type($5.node));
       for (auto &node : $2.list->nodes) {
         sig->params.emplace_back(static_cast<Param*>(node));
       }
       $$.node = sig;
     }
     | kARROW simple_type
-    { $$.node = new TypeProc(driver.loc(@1, @2), static_cast<Type*>($2.node)); }
+    { $$.node = new TypeProc(driver.loc(@1, @2), driver.type($2.node)); }
 
   params
     : required_positional kCOMMA params
@@ -519,7 +519,7 @@
 
   required_positional
     : type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @2), *$2.string, unique_ptr<Type>(static_cast<Type*>($1.node)), false, false, false); }
+    { $$.node = new Param(driver.loc(@1, @2), *$2.string, driver.type($1.node), false, false, false); }
 
   optional_positionals
     : optional_positional kCOMMA optional_positionals
@@ -530,7 +530,7 @@
 
   optional_positional
     : kQUESTION type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), *$3.string, unique_ptr<Type>(static_cast<Type*>($2.node)), false, true, false); }
+    { $$.node = new Param(driver.loc(@1, @3), *$3.string, driver.type($2.node), false, true, false); }
 
   rest_positionals
     : rest_positional kCOMMA rest_positionals
@@ -541,7 +541,7 @@
 
   rest_positional
     : kSTAR type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), *$3.string, unique_ptr<Type>(static_cast<Type*>($2.node)), false, false, true); }
+    { $$.node = new Param(driver.loc(@1, @3), *$3.string, driver.type($2.node), false, false, true); }
 
   keywords
     : %empty
@@ -559,15 +559,15 @@
 
   required_keyword
     : keyword_name type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @2), *$1.string, unique_ptr<Type>(static_cast<Type*>($2.node)), true, false, false); }
+    { $$.node = new Param(driver.loc(@1, @2), *$1.string, driver.type($2.node), true, false, false); }
 
   optional_keyword
     : kQUESTION keyword_name type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), *$2.string, unique_ptr<Type>(static_cast<Type*>($3.node)), true, false, false); }
+    { $$.node = new Param(driver.loc(@1, @3), *$2.string, driver.type($3.node), true, false, false); }
 
   rest_keyword
     : kSTAR2 type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), *$3.string, unique_ptr<Type>(static_cast<Type*>($2.node)), false, false, true); }
+    { $$.node = new Param(driver.loc(@1, @3), *$3.string, driver.type($2.node), false, false, true); }
 
   var_name_opt
     : %empty
@@ -675,7 +675,7 @@
     | kSINGLETON kLPAREN class_name kRPAREN
     { $$.node = new TypeSingleton(driver.loc(@1, @4), *$3.string); }
     | simple_type kQUESTION
-    { $$.node = new TypeNilable(driver.loc(@1, @2), std::unique_ptr<Type>(static_cast<Type*>($1.node))); }
+    { $$.node = new TypeNilable(driver.loc(@1, @2), driver.type(($1.node))); }
     | kHAT proc_type
     { $$.node = new Block(driver.loc(@1, @2), std::unique_ptr<TypeProc>(static_cast<TypeProc*>($2.node)), false); }
     | record_type
@@ -688,17 +688,17 @@
 
   proc_type
     : kLPAREN kRPAREN kARROW simple_type
-    { $$.node = new TypeProc(driver.loc(@1, @4), static_cast<Type*>($4.node)); }
+    { $$.node = new TypeProc(driver.loc(@1, @4), driver.type($4.node)); }
     | kLPAREN params kRPAREN kARROW simple_type
     {
-      TypeProc* sig = new TypeProc(driver.loc(@1, @5), static_cast<Type*>($5.node));
+      TypeProc* sig = new TypeProc(driver.loc(@1, @5), driver.type($5.node));
       for (auto &node : $2.list->nodes) {
         sig->params.emplace_back(static_cast<Param*>(node));
       }
       $$.node = sig;
     }
     | kARROW simple_type
-    { $$.node = new TypeProc(driver.loc(@1, @2), static_cast<Type*>($2.node)); }
+    { $$.node = new TypeProc(driver.loc(@1, @2), driver.type($2.node)); }
 
   record_type
     : kLBRACE record_fields kRBRACE
@@ -718,13 +718,13 @@
 
   record_field
     : tSYMBOL kFATARROW type
-    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, std::unique_ptr<Type>(static_cast<Type*>($3.node))); }
+    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, driver.type(($3.node))); }
     | tSTRING kFATARROW type
-    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, std::unique_ptr<Type>(static_cast<Type*>($3.node))); }
+    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, driver.type(($3.node))); }
     | tINTEGER kFATARROW type
-    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, std::unique_ptr<Type>(static_cast<Type*>($3.node))); }
+    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, driver.type(($3.node))); }
     | keyword type
-    { $$.node = new RecordField(driver.loc(@1, @2), *$1.string, std::unique_ptr<Type>(static_cast<Type*>($2.node))); }
+    { $$.node = new RecordField(driver.loc(@1, @2), *$1.string, driver.type(($2.node))); }
 
   // Names
 

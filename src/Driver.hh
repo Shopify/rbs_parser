@@ -43,6 +43,10 @@ public:
         list->emplace_back(node);
         return list;
     }
+
+    std::unique_ptr<Type> type(Node *node) {
+        return std::unique_ptr<Type>(static_cast<Type *>(node));
+    }
 };
 } // namespace rbs_parser
 
