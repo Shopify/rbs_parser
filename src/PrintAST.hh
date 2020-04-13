@@ -347,6 +347,7 @@ public:
         printn();
     }
 
+    virtual void visit(NodeList *list) {}
     virtual void visit(Token *token) {}
 };
 } // namespace rbs_parser

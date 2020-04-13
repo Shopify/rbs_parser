@@ -34,19 +34,6 @@ public:
     virtual void acceptVisitor(Visitor *v) = 0;
 };
 
-class NodeList {
-public:
-    vector<unique_ptr<Node>> nodes;
-
-    NodeList() = default;
-
-    inline void emplace_back(unique_ptr<Node> node) { nodes.emplace_back(move(node)); }
-
-    inline void concat(NodeList *other) {
-        nodes.insert(nodes.end(), make_move_iterator(other->nodes.begin()), make_move_iterator(other->nodes.end()));
-    }
-};
-
 class Visitor {
 public:
     virtual void enterVisit(Node *node) { node->acceptVisitor(this); }
@@ -105,7 +92,23 @@ public:
 
     virtual void visit(TypeParam *param) = 0;
 
+    virtual void visit(NodeList *list) = 0;
     virtual void visit(Token *token) = 0;
+};
+
+class NodeList: public Node {
+public:
+    vector<unique_ptr<Node>> nodes;
+
+    NodeList(Loc loc): Node(loc) {};
+    virtual ~NodeList() = default;
+    virtual void acceptVisitor(Visitor *v) { v->visit(this); }
+
+    inline void emplace_back(unique_ptr<Node> node) { nodes.emplace_back(move(node)); }
+
+    inline void concat(NodeList *other) {
+        nodes.insert(nodes.end(), make_move_iterator(other->nodes.begin()), make_move_iterator(other->nodes.end()));
+    }
 };
 
 class Token: public Node {

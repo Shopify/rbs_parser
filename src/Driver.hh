@@ -19,30 +19,30 @@ public:
         return Loc(Pos(begin.begin.line, begin.begin.column), Pos(end.end.line, end.end.column));
     }
 
-    NodeList *list() { return new NodeList(); }
+    NodeList *list() { return new NodeList(Loc(Pos(0, 0), Pos(0, 0))); }
 
     NodeList *list(unique_ptr<Node> node) {
-        NodeList *list = new NodeList();
+        NodeList *list = new NodeList(node->loc);
         list->emplace_back(move(node));
         return list;
     }
 
     NodeList *merge(unique_ptr<Node> node1, unique_ptr<Node> node2) {
-        NodeList *list = new NodeList();
+        NodeList *list = new NodeList(node1->loc); // TODO merge locs
         list->emplace_back(move(node1));
         list->emplace_back(move(node2));
         return list;
     }
 
     NodeList *merge(unique_ptr<Node> node, NodeList *nodes) {
-        NodeList *list = new NodeList();
+        NodeList *list = new NodeList(node->loc); // TODO merge locs
         list->emplace_back(move(node));
         list->concat(nodes);
         return list;
     }
 
     NodeList *merge(NodeList *nodes, unique_ptr<Node> node) {
-        NodeList *list = new NodeList();
+        NodeList *list = new NodeList(node->loc); // TODO merge locs
         list->concat(nodes);
         list->emplace_back(move(node));
         return list;
