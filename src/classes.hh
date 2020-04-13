@@ -6,6 +6,7 @@ class File;
 class Loc;
 class Node;
 class NodeList;
+class Token;
 class Visitor;
 
 class Type;

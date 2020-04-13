@@ -521,6 +521,7 @@ public:
     }
 
     virtual void visit(Param *param) {}
+    virtual void visit(Token *token) {}
 };
 } // namespace rbs_parser
 

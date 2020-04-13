@@ -104,6 +104,17 @@ public:
     virtual void visit(Param *param) = 0;
 
     virtual void visit(TypeParam *param) = 0;
+
+    virtual void visit(Token *token) = 0;
+};
+
+class Token: public Node {
+public:
+    string str;
+
+    Token(Loc loc, string str) : Node(loc), str(str) {};
+    virtual ~Token() = default;
+    virtual void acceptVisitor(Visitor *v) { v->visit(this); }
 };
 
 // Types

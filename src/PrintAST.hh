@@ -346,6 +346,8 @@ public:
         }
         printn();
     }
+
+    virtual void visit(Token *token) {}
 };
 } // namespace rbs_parser
 
