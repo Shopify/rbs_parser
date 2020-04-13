@@ -31,7 +31,7 @@
   union ParserValue {
     rbs_parser::NodeList *list;
     rbs_parser::Node *node;
-    std::string* string;
+    rbs_parser::Token* token;
   };
 
 }
@@ -152,20 +152,20 @@
 
   type_decl
     : kTYPE qualified_name kEQ type
-    { driver.file->decls.push_back(new TypeDecl(driver.loc(@1, @4), *$2.string, driver.type($4.node))); }
+    { driver.file->decls.push_back(new TypeDecl(driver.loc(@1, @4), $2.token->str, driver.type($4.node))); }
 
   // Consts
 
   const_decl
     : class_name kCOLON type
-    { driver.file->decls.push_back(new Const(driver.loc(@1, @3), *$1.string, driver.type($3.node))); }
+    { driver.file->decls.push_back(new Const(driver.loc(@1, @3), $1.token->str, driver.type($3.node))); }
     | namespace tUKEYWORD type
     {
-      $2.string->pop_back();
+      $2.token->str.pop_back();
       driver.file->decls.push_back(
         new Const(
           driver.loc(@1, @3),
-          *$1.string + *$2.string,
+          ($1.token ? $1.token->str : "") + $2.token->str,
           driver.type($3.node)));
     }
 
@@ -173,14 +173,14 @@
 
   global_decl
     : tGLOBALIDENT kCOLON type
-    { driver.file->decls.push_back(new Global(driver.loc(@1, @3), *$1.string, driver.type($3.node))); }
+    { driver.file->decls.push_back(new Global(driver.loc(@1, @3), $1.token->str, driver.type($3.node))); }
 
   // Extensions
 
   extension_decl
     : kEXTENSION class_name module_type_params kLPAREN extension_name kRPAREN class_members kEND
     {
-      Extension* decl = new Extension(driver.loc(@1, @8), *$2.string, *$5.string);
+      Extension* decl = new Extension(driver.loc(@1, @8), $2.token->str, $5.token->str);
       decl->typeParams = driver.cast_list<TypeParam>($3.list);
       decl->members = driver.cast_list<Member>($7.list);
       driver.file->decls.push_back(decl);
@@ -195,7 +195,7 @@
   module_decl
     : kMODULE class_name module_type_params module_self_type class_members kEND
     {
-      Module* decl = new Module(driver.loc(@1, @6), *$2.string);
+      Module* decl = new Module(driver.loc(@1, @6), $2.token->str);
       decl->typeParams = driver.cast_list<TypeParam>($3.list);
       decl->members = driver.cast_list<Member>($5.list);
       if ($4.node != NULL) {
@@ -205,8 +205,8 @@
     }
     | kMODULE namespace tUKEYWORD type class_members kEND
     {
-      $3.string->pop_back();
-      Module* decl = new Module(driver.loc(@1, @6), *$2.string + *$3.string);
+      $3.token->str.pop_back();
+      Module* decl = new Module(driver.loc(@1, @6), ($2.token ? $2.token->str : "") + $3.token->str);
       decl->selfType = driver.type(($4.node));
       decl->members = driver.cast_list<Member>($5.list);
       driver.file->decls.push_back(decl);
@@ -223,7 +223,7 @@
   interface_decl
     : kINTERFACE interface_name module_type_params class_members kEND
     {
-      Interface* decl = new Interface(driver.loc(@1, @5), *$2.string);
+      Interface* decl = new Interface(driver.loc(@1, @5), $2.token->str);
       decl->typeParams = driver.cast_list<TypeParam>($3.list);
       decl->members = driver.cast_list<Member>($4.list);
       driver.file->decls.push_back(decl);
@@ -231,14 +231,14 @@
 
   interface_name
     : namespace tINTERFACEIDENT
-    { $$.string = new std::string(*$1.string + *$2.string); }
+    { $$.token = new Token(driver.loc(@1, @2), ($1.token ? $1.token->str : "") + $2.token->str); }
 
   // Classes
 
   class_decl
     : kCLASS class_name module_type_params super_class class_members kEND
     {
-      Class* decl = new Class(driver.loc(@1, @6), *$2.string, *$4.string);
+      Class* decl = new Class(driver.loc(@1, @6), $2.token->str, $4.token ? $4.token->str : "");
       decl->typeParams = driver.cast_list<TypeParam>($3.list);
       decl->members = driver.cast_list<Member>($5.list);
       driver.file->decls.push_back(decl);
@@ -246,15 +246,16 @@
 
   super_class
     : %empty
-    { $$.string = new std::string(); }
+    { $$.token = NULL; }
     | kLT class_name
-    { $$.string = $2.string; }
+    { $$.token = $2.token; }
     | kLT class_name kLBRACKET type_list kRBRACKET
-    { $$.string = $2.string; }
+    // TODO generics
+    { $$.token = $2.token; }
 
   class_name
     : namespace tUIDENT
-    { $$.string = new std::string(*$1.string + *$2.string); }
+    { $$.token = new Token(driver.loc(@1, @2), std::string(($1.token ? $1.token->str : "") + $2.token->str)); }
 
   // Generics
 
@@ -272,17 +273,23 @@
 
   module_type_param
     : type_param_check type_param_variance tUIDENT
-    { $$.node = new TypeParam(driver.loc(@1, @3), *$3.string, *$2.string, !$1.string->empty()); }
+    {
+      $$.node = new TypeParam(
+        driver.loc(@1, @3),
+        $3.token ? $3.token->str : "",
+        $2.token ? $2.token->str : "",
+        $1.token != NULL);
+    }
 
   type_param_variance
     : %empty
-    { $$.string = new std::string(); }
+    { $$.token = NULL; }
     | kOUT
     | kIN
 
   type_param_check
     : %empty
-    { $$.string = new std::string(); }
+    { $$.token = NULL; }
     | kUNCHECKED
 
   // Class members
@@ -300,63 +307,63 @@
     | extend_member
     | prepend_member
     | kPUBLIC
-    { $$.node = new Visibility(driver.loc(@1, @1), *$1.string); }
+    { $$.node = new Visibility(driver.loc(@1, @1), $1.token->str); }
     | kPRIVATE
-    { $$.node = new Visibility(driver.loc(@1, @1), *$1.string); }
+    { $$.node = new Visibility(driver.loc(@1, @1), $1.token->str); }
     | method_member
 
   alias_member
     : kALIAS method_name method_name
-    { $$.node = new Alias(driver.loc(@1, @3), *$2.string, *$3.string, false); }
+    { $$.node = new Alias(driver.loc(@1, @3), $2.token->str, $3.token->str, false); }
     | kALIAS kSELF kDOT method_name kSELF kDOT method_name
-    { $$.node = new Alias(driver.loc(@1, @7), *$4.string, *$7.string, true); }
+    { $$.node = new Alias(driver.loc(@1, @7), $4.token->str, $7.token->str, true); }
 
   attribute_member
     : kATTRREADER keyword type
-    { $$.node = new AttrReader(driver.loc(@1, @3), *$2.string, "", driver.type($3.node)); }
+    { $$.node = new AttrReader(driver.loc(@1, @3), $2.token->str, "", driver.type($3.node)); }
     | kATTRREADER method_name attr_var_opt kCOLON type
-    { $$.node = new AttrReader(driver.loc(@1, @5), *$2.string, *$3.string, driver.type($5.node)); }
+    { $$.node = new AttrReader(driver.loc(@1, @5), $2.token->str, $3.token ? $3.token->str : "", driver.type($5.node)); }
     | kATTRWRITER keyword type
-    { $$.node = new AttrWriter(driver.loc(@1, @3), *$2.string, "", driver.type($3.node)); }
+    { $$.node = new AttrWriter(driver.loc(@1, @3), $2.token->str, "", driver.type($3.node)); }
     | kATTRWRITER method_name attr_var_opt kCOLON type
-    { $$.node = new AttrWriter(driver.loc(@1, @5), *$2.string, *$3.string, driver.type($5.node)); }
+    { $$.node = new AttrWriter(driver.loc(@1, @5), $2.token->str, $3.token ? $3.token->str : "", driver.type($5.node)); }
     | kATTRACCESSOR keyword type
-    { $$.node = new AttrAccessor(driver.loc(@1, @3), *$2.string, "", driver.type($3.node)); }
+    { $$.node = new AttrAccessor(driver.loc(@1, @3), $2.token->str, "", driver.type($3.node)); }
     | kATTRACCESSOR method_name attr_var_opt kCOLON type
-    { $$.node = new AttrAccessor(driver.loc(@1, @5), *$2.string, *$3.string, driver.type($5.node)); }
+    { $$.node = new AttrAccessor(driver.loc(@1, @5), $2.token->str, $3.token ? $3.token->str : "", driver.type($5.node)); }
 
   attr_var_opt
     : kLPAREN kRPAREN
-    { $$.string = new std::string(""); }
+    { $$.token = NULL; }
     | kLPAREN tIVAR kRPAREN
-    { $$.string = $2.string; }
+    { $$.token = $2.token; }
 
   include_member
     : kINCLUDE qualified_name
-    { $$.node = new Include(driver.loc(@1, @2), std::make_unique<TypeSimple>(driver.loc(@2, @2), *$2.string)); }
+    { $$.node = new Include(driver.loc(@1, @2), std::make_unique<TypeSimple>(driver.loc(@2, @2), $2.token->str)); }
     | kINCLUDE qualified_name kLBRACKET type_list kRBRACKET
     {
-      std::unique_ptr<TypeGeneric> type = std::make_unique<TypeGeneric>(driver.loc(@2, @5), *$2.string);
+      std::unique_ptr<TypeGeneric> type = std::make_unique<TypeGeneric>(driver.loc(@2, @5), $2.token->str);
       type->types = driver.cast_list<Type>($4.list);
       $$.node = new Include(driver.loc(@1, @5), std::unique_ptr<Type>(type.release()));
     }
 
   extend_member
     : kEXTEND qualified_name
-    { $$.node = new Extend(driver.loc(@1, @2), std::make_unique<TypeSimple>(driver.loc(@2, @2), *$2.string)); }
+    { $$.node = new Extend(driver.loc(@1, @2), std::make_unique<TypeSimple>(driver.loc(@2, @2), $2.token->str)); }
     | kEXTEND qualified_name kLBRACKET type_list kRBRACKET
     {
-      std::unique_ptr<TypeGeneric> type = std::make_unique<TypeGeneric>(driver.loc(@2, @5), *$2.string);
+      std::unique_ptr<TypeGeneric> type = std::make_unique<TypeGeneric>(driver.loc(@2, @5), $2.token->str);
       type->types = driver.cast_list<Type>($4.list);
       $$.node = new Extend(driver.loc(@1, @5), std::unique_ptr<Type>(type.release()));
     }
 
   prepend_member
     : kPREPEND qualified_name
-    { $$.node = new Prepend(driver.loc(@1, @2), std::make_unique<TypeSimple>(driver.loc(@2, @2), *$2.string)); }
+    { $$.node = new Prepend(driver.loc(@1, @2), std::make_unique<TypeSimple>(driver.loc(@2, @2), $2.token->str)); }
     | kPREPEND qualified_name kLBRACKET type_list kRBRACKET
     {
-      std::unique_ptr<TypeGeneric> type = std::make_unique<TypeGeneric>(driver.loc(@2, @5), *$2.string);
+      std::unique_ptr<TypeGeneric> type = std::make_unique<TypeGeneric>(driver.loc(@2, @5), $2.token->str);
       type->types = driver.cast_list<Type>($4.list);
       $$.node = new Prepend(driver.loc(@1, @5), std::unique_ptr<Type>(type.release()));
     }
@@ -366,17 +373,17 @@
   method_member
     : attributes kDEF method_kind def_name method_types
     {
-      auto instance = $3.string->empty() || $3.string->compare("self?") == 0;
-      auto singleton = !$3.string->empty();
-      auto incompatible = !$1.string->empty();
-      Method* decl = new Method(driver.loc(@2, @5), *$4.string, instance, singleton, incompatible);
+      auto instance = $3.token == NULL || $3.token->str.compare("self?") == 0;
+      auto singleton = $3.token != NULL;
+      auto incompatible = $1.token != NULL;
+      Method* decl = new Method(driver.loc(@2, @5), $4.token ? $4.token->str : "", instance, singleton, incompatible);
       decl->types = driver.cast_list<MethodType>($5.list);
       $$.node = decl;
     }
 
   attributes
     : %empty
-    { $$.string = new std::string(); }
+    { $$.token = NULL; }
     | kINCOMPATIBLE
 
   def_name
@@ -385,7 +392,7 @@
 
   method_kind
     : %empty
-    { $$.string = new std::string(); }
+    { $$.token = NULL; }
     | kSELF kDOT
     | kSELFQ kDOT
 
@@ -394,9 +401,9 @@
     | kAMP | kHAT | kSTAR | kLT | kEXCLAMATION | kSTAR2 | kBAR | kOUT | kIN
     | method_name0
     | method_name0 kQUESTION
-    { $$.string = new std::string(*$1.string + "?"); }
+    { $$.token = new Token(driver.loc(@1, @2), std::string($1.token->str + "?")); }
     | method_name0 kEQ
-    { $$.string = new std::string(*$1.string + "="); }
+    { $$.token = new Token(driver.loc(@1, @2), std::string($1.token->str + "=")); }
     | tQUOTEDMETHOD
     | tQUOTEDIDENT
     | tEXCLMETHOD
@@ -443,9 +450,9 @@
 
   type_params0
     : tUIDENT
-    { $$.list = driver.list(make_unique<TypeParam>(driver.loc(@1, @1), *$1.string, "", false)); }
+    { $$.list = driver.list(make_unique<TypeParam>(driver.loc(@1, @1), $1.token->str, "", false)); }
     | type_params0 kCOMMA tUIDENT
-    { $$.list = driver.merge($1.list, make_unique<TypeParam>(driver.loc(@3, @3), *$3.string, "", false)); }
+    { $$.list = driver.merge($1.list, make_unique<TypeParam>(driver.loc(@3, @3), $3.token->str, "", false)); }
 
   params_opt
     : %empty
@@ -486,7 +493,7 @@
 
   required_positional
     : type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @2), *$2.string, driver.type($1.node), false, false, false); }
+    { $$.node = new Param(driver.loc(@1, @2), $2.token ? $2.token->str : "", driver.type($1.node), false, false, false); }
 
   optional_positionals
     : optional_positional kCOMMA optional_positionals
@@ -497,7 +504,7 @@
 
   optional_positional
     : kQUESTION type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), *$3.string, driver.type($2.node), false, true, false); }
+    { $$.node = new Param(driver.loc(@1, @3), $3.token ? $3.token->str : "", driver.type($2.node), false, true, false); }
 
   rest_positionals
     : rest_positional kCOMMA rest_positionals
@@ -508,7 +515,7 @@
 
   rest_positional
     : kSTAR type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), *$3.string, driver.type($2.node), false, false, true); }
+    { $$.node = new Param(driver.loc(@1, @3), $3.token ? $3.token->str : "", driver.type($2.node), false, false, true); }
 
   keywords
     : %empty
@@ -526,19 +533,19 @@
 
   required_keyword
     : keyword_name type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @2), *$1.string, driver.type($2.node), true, false, false); }
+    { $$.node = new Param(driver.loc(@1, @2), $1.token->str, driver.type($2.node), true, false, false); }
 
   optional_keyword
     : kQUESTION keyword_name type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), *$2.string, driver.type($3.node), true, false, false); }
+    { $$.node = new Param(driver.loc(@1, @3), $2.token->str, driver.type($3.node), true, false, false); }
 
   rest_keyword
     : kSTAR2 type var_name_opt
-    { $$.node = new Param(driver.loc(@1, @3), *$3.string, driver.type($2.node), false, false, true); }
+    { $$.node = new Param(driver.loc(@1, @3), $3.token ? $3.token->str : "", driver.type($2.node), false, false, true); }
 
   var_name_opt
     : %empty
-    { $$.string = new std::string(); }
+    { $$.token = NULL; }
     | tLIDENT
     | tINTERFACEIDENT
     | tQUOTEDMETHOD
@@ -549,9 +556,9 @@
 
   keyword
     : tUKEYWORD
-    { $1.string->pop_back(); }
+    { $1.token->str.pop_back(); }
     | tLKEYWORD
-    { $1.string->pop_back(); }
+    { $1.token->str.pop_back(); }
 
   // Types
 
@@ -602,7 +609,7 @@
     | kUNTYPED
     { $$.node = new TypeUntyped(driver.loc(@1, @1)); }
     | tSTRING
-    { $$.node = new TypeString(driver.loc(@1, @1), *$1.string); }
+    { $$.node = new TypeString(driver.loc(@1, @1), $1.token->str); }
     | kTOP
     { $$.node = new TypeTop(driver.loc(@1, @1)); }
     | kBOT
@@ -614,14 +621,14 @@
     | kCLASS
     { $$.node = new TypeClass(driver.loc(@1, @1)); }
     | tINTEGER
-    { $$.node = new TypeInteger(driver.loc(@1, @1), *$1.string); }
+    { $$.node = new TypeInteger(driver.loc(@1, @1), $1.token->str); }
     | tSYMBOL
-    { $$.node = new TypeSymbol(driver.loc(@1, @1), *$1.string); }
+    { $$.node = new TypeSymbol(driver.loc(@1, @1), $1.token->str); }
     | qualified_name
-    { $$.node = new TypeSimple(driver.loc(@1, @1), *$1.string); }
+    { $$.node = new TypeSimple(driver.loc(@1, @1), $1.token->str); }
     | qualified_name kLBRACKET type_list kRBRACKET
     {
-      TypeGeneric* type = new TypeGeneric(driver.loc(@1, @4), *$1.string);
+      TypeGeneric* type = new TypeGeneric(driver.loc(@1, @4), $1.token->str);
       type->types = driver.cast_list<Type>($3.list);
       $$.node = type;
     }
@@ -636,7 +643,7 @@
     | kLPAREN type kRPAREN
     { $$ = $2; }
     | kSINGLETON kLPAREN class_name kRPAREN
-    { $$.node = new TypeSingleton(driver.loc(@1, @4), *$3.string); }
+    { $$.node = new TypeSingleton(driver.loc(@1, @4), $3.token->str); }
     | simple_type kQUESTION
     { $$.node = new TypeNilable(driver.loc(@1, @2), driver.type(($1.node))); }
     | kHAT proc_type
@@ -677,27 +684,27 @@
 
   record_field
     : tSYMBOL kFATARROW type
-    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, driver.type(($3.node))); }
+    { $$.node = new RecordField(driver.loc(@1, @3), $1.token->str, driver.type(($3.node))); }
     | tSTRING kFATARROW type
-    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, driver.type(($3.node))); }
+    { $$.node = new RecordField(driver.loc(@1, @3), $1.token->str, driver.type(($3.node))); }
     | tINTEGER kFATARROW type
-    { $$.node = new RecordField(driver.loc(@1, @3), *$1.string, driver.type(($3.node))); }
+    { $$.node = new RecordField(driver.loc(@1, @3), $1.token->str, driver.type(($3.node))); }
     | keyword type
-    { $$.node = new RecordField(driver.loc(@1, @2), *$1.string, driver.type(($2.node))); }
+    { $$.node = new RecordField(driver.loc(@1, @2), $1.token->str, driver.type(($2.node))); }
 
   // Names
 
   namespace
     : %empty
-    { $$.string = new std::string(""); }
+    { $$.token = NULL; }
     | kCOLON2 tNAMESPACE
-    { $$.string = new std::string(*$1.string + *$2.string); }
+    { $$.token = new Token(driver.loc(@1, @2), std::string($1.token->str + $2.token->str)); }
     | tNAMESPACE
     | kCOLON2
 
   qualified_name
     : namespace simple_name
-    { $$.string = new std::string(*$1.string + *$2.string); }
+    { $$.token = new Token(driver.loc(@1, @2), std::string(($1.token ? $1.token->str : "") + $2.token->str)); }
 
   simple_name
     : tUIDENT

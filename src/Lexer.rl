@@ -170,11 +170,17 @@ void rbs_parser::Lexer::emit(Parser::semantic_type* val, Parser::location_type* 
 	loc->begin.line = cl;
 	loc->begin.column = cc;
 
-	val->string = new std::string(ts, te - ts);
+	auto tstr = std::string(ts, te - ts);
 	cc += te - ts;
 
 	loc->end.line = cl;
 	loc->end.column = cc - 1;
+
+	auto tloc = rbs_parser::Loc(
+		rbs_parser::Pos(loc->begin.line, loc->begin.column),
+		rbs_parser::Pos(loc->end.line, loc->end.column));
+
+	val->token = new rbs_parser::Token(tloc, tstr);
 }
 
 rbs_parser::Parser::token_type rbs_parser::Lexer::lex(Parser::semantic_type* val, Parser::location_type* loc) {
