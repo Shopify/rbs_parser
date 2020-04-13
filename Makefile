@@ -6,7 +6,7 @@ rbs2rbi: src/Lexer.o src/Parser.o src/main.o
 	$(CXX) $^ -o $@
 
 %.o: %.cc
-	$(CXX) -std=c++17 -c -o $@ $<
+	$(CXX) -std=c++17 -ferror-limit=1000 -c -o $@ $<
 
 src/Parser.hh: src/Parser.cc
 
