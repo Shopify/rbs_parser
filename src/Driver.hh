@@ -52,6 +52,13 @@ public:
         return std::unique_ptr<Type>(static_cast<Type *>(node));
     }
 
+    std::string string(Node *node) {
+        if (node) {
+            return static_cast<Token*>(node)->str;
+        }
+        return "";
+    }
+
     template<typename T>
     std::unique_ptr<T> cast_node(std::unique_ptr<Node> node) {
         return std::unique_ptr<T>(static_cast<T*>(node.release()));

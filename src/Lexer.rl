@@ -180,7 +180,7 @@ void rbs_parser::Lexer::emit(Parser::semantic_type* val, Parser::location_type* 
 		rbs_parser::Pos(loc->begin.line, loc->begin.column),
 		rbs_parser::Pos(loc->end.line, loc->end.column));
 
-	val->token = new rbs_parser::Token(tloc, tstr);
+	*val = new rbs_parser::Token(tloc, tstr);
 }
 
 rbs_parser::Parser::token_type rbs_parser::Lexer::lex(Parser::semantic_type* val, Parser::location_type* loc) {
