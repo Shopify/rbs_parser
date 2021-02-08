@@ -19,55 +19,57 @@ public:
         return Loc(Pos(begin.begin.line, begin.begin.column), Pos(end.end.line, end.end.column));
     }
 
-    NodeList *list() { return new NodeList(Loc(Pos(0, 0), Pos(0, 0))); }
+    std::unique_ptr<NodeList> list() {
+        return std::make_unique<NodeList>(Loc(Pos(0, 0), Pos(0, 0)));
+    }
 
-    NodeList *list(unique_ptr<Node> node) {
-        NodeList *list = new NodeList(node->loc);
+    std::unique_ptr<NodeList> list(unique_ptr<Node> node) {
+        auto list = std::make_unique<NodeList>(node->loc);
         list->emplace_back(move(node));
         return list;
     }
 
-    NodeList *merge(unique_ptr<Node> node1, unique_ptr<Node> node2) {
-        NodeList *list = new NodeList(node1->loc); // TODO merge locs
+    std::unique_ptr<NodeList> merge(unique_ptr<Node> node1, unique_ptr<Node> node2) {
+        auto list = std::make_unique<NodeList>(node1->loc); // TODO merge locs
         list->emplace_back(move(node1));
         list->emplace_back(move(node2));
         return list;
     }
 
-    NodeList *merge(unique_ptr<Node> node, NodeList *nodes) {
-        NodeList *list = new NodeList(node->loc); // TODO merge locs
+    std::unique_ptr<NodeList> merge(unique_ptr<Node> node, unique_ptr<NodeList> nodes) {
+        auto list = std::make_unique<NodeList>(node->loc); // TODO merge locs
         list->emplace_back(move(node));
-        list->concat(nodes);
+        list->concat(nodes.release());
         return list;
     }
 
-    NodeList *merge(NodeList *nodes, unique_ptr<Node> node) {
-        NodeList *list = new NodeList(node->loc); // TODO merge locs
-        list->concat(nodes);
+    std::unique_ptr<NodeList> merge(unique_ptr<NodeList> nodes, unique_ptr<Node> node) {
+        auto list = std::make_unique<NodeList>(node->loc); // TODO merge locs
+        list->concat(nodes.release());
         list->emplace_back(move(node));
         return list;
     }
 
-    std::unique_ptr<Type> type(Node *node) {
-        return std::unique_ptr<Type>(static_cast<Type *>(node));
+    std::unique_ptr<Type> type(std::unique_ptr<Node> const &node) {
+        return cast_node<Type>(node);
     }
 
-    std::string string(Node *node) {
+    std::string string(std::unique_ptr<Node> const &node) {
         if (node) {
-            return static_cast<Token*>(node)->str;
+            return cast_node<Token>(node)->str;
         }
         return "";
     }
 
     template<typename T>
-    std::unique_ptr<T> cast_node(std::unique_ptr<Node> node) {
-        return std::unique_ptr<T>(static_cast<T*>(node.release()));
+    std::unique_ptr<T> cast_node(std::unique_ptr<Node> const &node) {
+        return std::unique_ptr<T>(static_cast<T*>(node.get()));
     }
 
     template<typename T>
-    std::vector<std::unique_ptr<T>> cast_list(NodeList *list) {
+    std::vector<std::unique_ptr<T>> cast_list(std::unique_ptr<Node> const &list) {
         std::vector<std::unique_ptr<T>> v;
-        for (auto &node : list->nodes) {
+        for (auto &node : cast_node<NodeList>(list)->nodes) {
             v.emplace_back(cast_node<T>(move(node)));
         }
         return v;

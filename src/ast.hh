@@ -32,6 +32,16 @@ public:
     Node(Loc loc) : loc(loc) {}
     virtual ~Node() = default;
     virtual void acceptVisitor(Visitor *v) = 0;
+
+    Node& operator=(Node const& other) {
+        // *this = move(other);
+        return *this;
+    }
+
+    Node& operator=(Node&& other) {
+        // *this = move(other);
+        return *this;
+    }
 };
 
 class Visitor {
