@@ -1,4 +1,6 @@
-# RBS parser
+# RBS parser (deprecated)
+
+> ⚠️ This repository is no longer maintained.
 
 `rbs_parser` provides an API and a command line tool to parse [Ruby RBS signatures](https://github.com/ruby/ruby-signature)
 and translate them to [Sorbet's RBI format](https://sorbet.org/docs/rbi).
